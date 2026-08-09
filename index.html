@@ -325,7 +325,7 @@ footer .priv{font-weight:600;margin-top:6px}
 </button>
 
 <footer>
-  <div class="stamp" id="buildStamp">BUILD 0809261703 &middot; CORE 1.0.0</div>
+  <div class="stamp" id="buildStamp">BUILD 0809261733 &middot; CORE 1.0.0</div>
   <div>Designed by Harold Brown</div>
   <div class="priv">Your closet is stored only on this device. Nobody else can see it and it is not backed up anywhere until you back it up yourself.</div>
   <button class="footshare" id="footShare">
@@ -420,7 +420,7 @@ footer .priv{font-weight:600;margin-top:6px}
    Single file app. No server, no account, no sync.
    ===================================================================== */
 
-var BUILD = '0809261703';
+var BUILD = '0809261733';
 var CORE  = '1.0.0';
 
 /* =====================================================================
@@ -1161,12 +1161,20 @@ function submitPin(){
 var SHARE_URL = 'https://oharoldbrown.github.io/wig-closet/';
 var SHARE_TEXT = 'A free wig closet tracker. Your units, your wears, what is due for a wash, and what is safe to use on each one.\n\n'
   + 'There is no account and no sync. Everything stays in your own browser on your own device, so nobody else can see it and nothing is stored in the cloud. That also means nobody is keeping a copy for you, so use the backup button in the menu now and then.';
-function shareLabel(){ return navigator.share ? 'Share this app' : 'Copy the link to send someone'; }
+/* Windows and macOS do have a share sheet, but it hands most targets the link on its
+   own and drops the text, so the note about privacy never arrives. On a phone the sheet
+   carries both and works properly. So the sheet is used on touch devices only, and
+   everywhere else the whole message goes on the clipboard where nothing can strip it. */
+function isTouchDevice(){
+  if(navigator.userAgentData && typeof navigator.userAgentData.mobile==='boolean') return navigator.userAgentData.mobile;
+  if(window.matchMedia && window.matchMedia('(pointer: coarse)').matches) return true;
+  return (navigator.maxTouchPoints||0) > 1;
+}
+function useShareSheet(){ return !!navigator.share && isTouchDevice(); }
+function shareLabel(){ return useShareSheet() ? 'Share this app' : 'Copy the link to send someone'; }
 function shareApp(){
-  /* Phones open the share sheet. Desktop browsers mostly have no share sheet at all,
-     so the honest equivalent there is putting the whole thing on the clipboard. */
   var payload={ title:'The Wig Closet', text:SHARE_TEXT, url:SHARE_URL };
-  if(navigator.share){
+  if(useShareSheet()){
     navigator.share(payload).catch(function(){});
     return;
   }
@@ -2079,9 +2087,9 @@ function openMenu(){
       ? 'Add it to your home screen from Safari so it opens on its own, with or without a signal.'
       : 'Put it on your home screen so it opens on its own, with or without a signal.', doInstall);
   }
-  menuItem(l4, shareLabel(), navigator.share
+  menuItem(l4, shareLabel(), useShareSheet()
     ? 'Opens your share sheet with the link and a short note explaining that nothing leaves your phone.'
-    : 'Puts the address and a short note on your clipboard, ready to paste into a message, an email or a post.', shareApp);
+    : 'Puts the address and a short note on your clipboard, ready to paste into an email, a message or a post.', shareApp);
   menuItem(l4,'Totals','What you have paid, what it is worth, and how much you actually wear it.', openTotals);
   menuItem(l4,'Getting started','How the whole thing works, in plain words.', openHelp);
   menuItem(l4,'Settings','Your closet name, ratings and wash reminders.', openSettings);
@@ -2193,9 +2201,10 @@ function openSettings(){
   var sbtn=el('button','btn wide','Share this app with your friends');
   sbtn.onclick=shareApp;
   ss.appendChild(sbtn);
-  ss.appendChild(el('div','hint', navigator.share
+  sbtn.textContent = useShareSheet() ? 'Share this app with your friends' : 'Copy the link and note to send friends';
+  ss.appendChild(el('div','hint', useShareSheet()
     ? 'Opens your share sheet with the link and a short note, so whoever you send it to already knows their closet stays on their own phone.'
-    : 'Copies the link and a short note to your clipboard, ready to paste into a message, an email or a post.'));
+    : 'Copies the link and a short note to your clipboard. Paste it straight into an email or a post, since sharing a link on a computer drops everything except the address.'));
   b.appendChild(ss);
 
   var s3=el('div','section'); s3.appendChild(el('h3',null,'Where your closet is kept'));
