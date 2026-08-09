@@ -7,7 +7,21 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="theme-color" content="#D4276E">
-<meta name="description" content="A private closet tracker for your wigs. Everything stays on your own device.">
+<meta name="description" content="Every unit you own, what it is made of, and what is due for a wash. No account and no sync, so everything stays on your own device and nobody else can see it.">
+<link rel="canonical" href="https://oharoldbrown.github.io/wig-closet/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Wig Closet">
+<meta property="og:title" content="The Wig Closet">
+<meta property="og:description" content="Every unit you own, what it is made of, and what is due for a wash. No account and no sync, so everything stays on your own device and nobody else can see it.">
+<meta property="og:url" content="https://oharoldbrown.github.io/wig-closet/">
+<meta property="og:image" content="https://oharoldbrown.github.io/wig-closet/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Wig Closet">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Wig Closet">
+<meta name="twitter:description" content="Every unit you own, what it is made of, and what is due for a wash. No account and no sync, so everything stays on your own device and nobody else can see it.">
+<meta name="twitter:image" content="https://oharoldbrown.github.io/wig-closet/og-image.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Wig Closet">
 <meta name="mobile-web-app-capable" content="yes">
@@ -309,7 +323,7 @@ footer .priv{font-weight:600;margin-top:6px}
 </button>
 
 <footer>
-  <div class="stamp" id="buildStamp">BUILD 0809261632 &middot; CORE 1.0.0</div>
+  <div class="stamp" id="buildStamp">BUILD 0809261656 &middot; CORE 1.0.0</div>
   <div>Designed by Harold Brown</div>
   <div class="priv">Your closet is stored only on this device. Nobody else can see it and it is not backed up anywhere until you back it up yourself.</div>
 </footer>
@@ -400,7 +414,7 @@ footer .priv{font-weight:600;margin-top:6px}
    Single file app. No server, no account, no sync.
    ===================================================================== */
 
-var BUILD = '0809261632';
+var BUILD = '0809261656';
 var CORE  = '1.0.0';
 
 /* =====================================================================
@@ -1133,6 +1147,26 @@ function submitPin(){
       $('lockMsg').textContent='That is not it. Try again.';
     }
   });
+}
+
+/* ---------- passing it on ----------
+   The blurb travels with the link, so nobody has to explain the privacy part
+   themselves and nobody arrives wondering who can see their closet. */
+var SHARE_URL = 'https://oharoldbrown.github.io/wig-closet/';
+var SHARE_TEXT = 'A free wig closet tracker. Your units, your wears, what is due for a wash, and what is safe to use on each one.\n\n'
+  + 'There is no account and no sync. Everything stays in your own browser on your own device, so nobody else can see it and nothing is stored in the cloud. That also means nobody is keeping a copy for you, so use the backup button in the menu now and then.';
+function shareApp(){
+  /* Phones open the share sheet. Desktop browsers mostly have no share sheet at all,
+     so the honest equivalent there is putting the whole thing on the clipboard. */
+  var payload={ title:'The Wig Closet', text:SHARE_TEXT, url:SHARE_URL };
+  if(navigator.share){
+    navigator.share(payload).catch(function(){});
+    return;
+  }
+  var full=SHARE_TEXT+'\n\n'+SHARE_URL;
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(full).then(function(){ toast('Copied. Paste it wherever you like.'); }).catch(function(){ fallbackCopy(full); });
+  } else fallbackCopy(full);
 }
 
 /* ---------- installing to the home screen ---------- */
@@ -2037,6 +2071,11 @@ function openMenu(){
     menuItem(l4,'Install this app', isIos()
       ? 'Add it to your home screen from Safari so it opens on its own, with or without a signal.'
       : 'Put it on your home screen so it opens on its own, with or without a signal.', doInstall);
+  }
+  if(navigator.share){
+    menuItem(l4,'Share this app','Opens your share sheet with the link and a short note explaining that nothing leaves your phone.', shareApp);
+  } else {
+    menuItem(l4,'Copy the link to send someone','Puts the address and a short note on your clipboard, ready to paste into a message, an email or a post.', shareApp);
   }
   menuItem(l4,'Totals','What you have paid, what it is worth, and how much you actually wear it.', openTotals);
   menuItem(l4,'Getting started','How the whole thing works, in plain words.', openHelp);
