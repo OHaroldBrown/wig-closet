@@ -1,0 +1,2097 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="theme-color" content="#D4276E">
+<meta name="description" content="A private closet tracker for your wigs. Everything stays on your own device.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Wig Closet">
+<meta name="mobile-web-app-capable" content="yes">
+<title>The Wig Closet</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="icon" type="image/png" sizes="128x128" href="icon-128.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root{
+  --bg:#ffffff;
+  --fg:#000000;
+  --accent:#d4276e;
+  --on-accent:#ffffff;
+  --line:#e9d3dd;
+  --line-strong:#c9a3b6;
+  --field:#fbf4f7;
+  --tile:#f7eef2;
+  --shadow:0 2px 10px rgba(0,0,0,.10);
+}
+html[data-theme="dark"]{
+  --bg:#000000;
+  --fg:#ffffff;
+  --accent:#ff7fb0;
+  --on-accent:#000000;
+  --line:#3a2129;
+  --line-strong:#6b3a4c;
+  --field:#141014;
+  --tile:#171114;
+  --shadow:0 2px 10px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--fg)}
+body{
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-size:16px;line-height:1.45;
+  padding-bottom:96px;
+  overflow-x:hidden;
+}
+h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.015em}
+button,input,select,textarea{font:inherit;color:var(--fg)}
+button{cursor:pointer;background:none;border:none;padding:0;color:var(--fg)}
+a{color:var(--fg)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.serif{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif}
+
+/* ---------- shell ---------- */
+.wrap{max-width:1100px;margin:0 auto;padding:0 14px}
+.topbar{position:sticky;top:0;z-index:40;background:var(--bg);border-bottom:2px solid var(--line);padding-top:env(safe-area-inset-top)}
+.topbar-in{display:flex;align-items:center;gap:10px;padding:10px 14px;max-width:1100px;margin:0 auto}
+.closet-name{font-size:22px;font-weight:800;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.iconbtn{width:42px;height:42px;border:2px solid var(--line-strong);border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;background:var(--bg)}
+.iconbtn svg{width:22px;height:22px;fill:var(--fg)}
+
+/* ---------- bars ---------- */
+.bar{display:none;padding:10px 14px;border-bottom:2px solid var(--line);font-weight:700}
+.bar.show{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.bar .barbtn{border:2px solid var(--fg);border-radius:10px;padding:5px 12px;font-weight:800}
+#updateBar{background:var(--accent);color:var(--on-accent);border-bottom-color:var(--accent)}
+#updateBar .barbtn{border-color:var(--on-accent);color:var(--on-accent)}
+#nudgeBar{background:var(--field)}
+
+/* ---------- ledger ---------- */
+.ledger{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0 6px}
+.led{border:2px solid var(--line);border-radius:14px;padding:9px 10px;background:var(--field)}
+.led .k{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+.led .v{font-size:19px;font-weight:800;margin-top:2px;line-height:1.15}
+.ledger-note{font-size:13px;font-weight:600;margin:2px 0 14px}
+
+/* ---------- care strip: the signature block ---------- */
+.care{border:3px solid var(--accent);border-radius:16px;padding:12px 14px;margin:0 0 16px;background:var(--bg)}
+.care-head{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.care-count{font-size:30px;font-weight:800;line-height:1;font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}
+.care-label{font-size:14px;font-weight:700}
+.care-list{display:flex;gap:8px;overflow-x:auto;margin-top:10px;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+.care-item{flex:0 0 auto;border:2px solid var(--line-strong);border-radius:12px;padding:7px 11px;font-size:13px;font-weight:700;white-space:nowrap;background:var(--field)}
+.care-empty{font-size:14px;font-weight:600;margin-top:6px}
+
+/* ---------- search and chips ---------- */
+.search{width:100%;padding:12px 14px;border:2px solid var(--line-strong);border-radius:14px;background:var(--field);margin-bottom:10px}
+.chiprow{display:flex;gap:7px;overflow-x:auto;padding-bottom:8px;margin-bottom:4px;-webkit-overflow-scrolling:touch}
+.chiprow .grouplabel{flex:0 0 auto;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;align-self:center;padding-right:4px}
+.chip{flex:0 0 auto;border:2px solid var(--line-strong);border-radius:999px;padding:6px 13px;font-size:14px;font-weight:700;white-space:nowrap;background:var(--bg)}
+.chip.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.chip .n{font-weight:800;opacity:1;margin-left:5px;font-size:12px}
+.morebtn{border:2px solid var(--line-strong);border-radius:12px;padding:7px 13px;font-weight:800;font-size:14px;margin:2px 0 10px}
+.filterbanner{display:none;align-items:center;gap:10px;margin:0 0 10px;font-weight:700;font-size:14px}
+.filterbanner.show{display:flex}
+
+/* ---------- grid ---------- */
+.gridhead{display:flex;align-items:center;gap:10px;margin:6px 0 10px;flex-wrap:wrap}
+.gridhead .count{font-weight:800;font-size:14px;flex:1}
+.smallbtn{border:2px solid var(--line-strong);border-radius:11px;padding:6px 11px;font-weight:800;font-size:13px}
+.smallbtn.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:620px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:900px){.grid{grid-template-columns:repeat(4,1fr)}}
+.tile{border:2px solid var(--line);border-radius:16px;overflow:hidden;background:var(--tile);position:relative;text-align:left;display:block;width:100%}
+.tile.dragging{opacity:.45}
+.tile .ph{width:100%;aspect-ratio:3/4;background:var(--tile);display:block;object-fit:cover}
+.tile .noph{width:100%;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;padding:10px;text-align:center}
+.tile .meta{padding:9px 10px 11px}
+.tile .tname{font-weight:800;font-size:15px;line-height:1.25}
+.tile .tsub{font-size:12.5px;font-weight:600;margin-top:2px}
+.tile .pills{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.pill{border:2px solid var(--line-strong);border-radius:999px;padding:2px 8px;font-size:11px;font-weight:800}
+.pill.due{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.tile .wearbtn{position:absolute;top:8px;right:8px;width:38px;height:38px;border-radius:50%;background:var(--bg);border:2px solid var(--fg);font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;line-height:1}
+.arrangehandle{position:absolute;inset:0;display:none}
+body.arranging .arrangehandle{display:block}
+body.arranging .tile{border-color:var(--accent);border-style:dashed}
+.empty{border:3px dashed var(--line-strong);border-radius:18px;padding:26px 18px;text-align:center}
+.empty h3{font-size:19px;margin-bottom:8px}
+.empty p{font-weight:600;margin:0 0 14px}
+
+/* ---------- fab ---------- */
+.fab{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:35;background:var(--accent);color:var(--on-accent);border-radius:999px;padding:15px 22px;font-weight:800;font-size:16px;box-shadow:var(--shadow);display:flex;align-items:center;gap:8px}
+
+/* ---------- panels ---------- */
+.panel{position:fixed;inset:0;z-index:60;background:var(--bg);overflow-y:auto;display:none;-webkit-overflow-scrolling:touch}
+.panel.open{display:block}
+.panel-head{position:sticky;top:0;background:var(--bg);border-bottom:2px solid var(--line);padding-top:env(safe-area-inset-top);z-index:5}
+.panel-head-in{display:flex;align-items:center;gap:10px;padding:10px 14px;max-width:1100px;margin:0 auto}
+.panel-head h2{flex:1;font-size:19px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.panel-body{max-width:1100px;margin:0 auto;padding:16px 14px calc(50px + env(safe-area-inset-bottom))}
+
+/* ---------- forms ---------- */
+.section{border:2px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px}
+.section h3{font-size:13px;text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px}
+.f{margin-bottom:13px}
+.f:last-child{margin-bottom:0}
+.f label{display:block;font-size:13px;font-weight:800;margin-bottom:5px}
+.f .hint{font-size:12.5px;font-weight:600;margin-top:5px}
+.f input,.f select,.f textarea{width:100%;padding:11px 12px;border:2px solid var(--line-strong);border-radius:12px;background:var(--field)}
+.f textarea{min-height:92px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px}
+.rate{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
+.rate button{border:2px solid var(--line-strong);border-radius:9px;padding:8px 0;font-weight:800;font-size:14px}
+.rate button.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.togglegrid{display:flex;flex-wrap:wrap;gap:7px}
+.togglegrid button{border:2px solid var(--line-strong);border-radius:999px;padding:7px 13px;font-weight:700;font-size:14px}
+.togglegrid button.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.photorow{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.photoslot{border:2px dashed var(--line-strong);border-radius:14px;padding:10px;text-align:center}
+.photoslot img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:10px;display:block;margin-bottom:8px}
+.photoslot .ttl{font-size:12.5px;font-weight:800;margin-bottom:7px}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.btn{border:2px solid var(--fg);border-radius:13px;padding:12px 18px;font-weight:800;background:var(--bg)}
+.btn.primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.btn.wide{width:100%;text-align:center;display:block}
+.btn.danger{border-color:var(--accent);color:var(--accent)}
+
+/* ---------- detail ---------- */
+.detail-photos{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:16px}
+.detail-photos figure{margin:0}
+.detail-photos img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:14px;border:2px solid var(--line);display:block}
+.detail-photos figcaption{font-size:12px;font-weight:800;margin-top:5px;text-transform:uppercase;letter-spacing:.05em}
+.dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:15px}
+.dl dt{font-weight:800;font-size:13px;align-self:center}
+.dl dd{margin:0;font-weight:600}
+.ratingline{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.ratingline .rname{font-weight:800;font-size:14px;flex:1}
+.ratingbar{display:flex;gap:3px}
+.ratingbar i{width:12px;height:16px;border:2px solid var(--line-strong);border-radius:3px;display:block}
+.ratingbar i.on{background:var(--accent);border-color:var(--accent)}
+.careblock{border:3px solid var(--accent);border-radius:16px;padding:14px;margin-bottom:16px}
+.careblock .big{font-size:15px;font-weight:800;margin-bottom:10px}
+.prose p{font-weight:600;margin:0 0 12px}
+.prose h4{font-size:15px;margin:18px 0 7px;font-weight:800}
+.prose ul{margin:0 0 12px;padding-left:20px;font-weight:600}
+.prose li{margin-bottom:6px}
+
+/* ---------- menu list ---------- */
+.menulist{display:flex;flex-direction:column;gap:0;border:2px solid var(--line);border-radius:16px;overflow:hidden}
+.menulist button{text-align:left;padding:15px 15px;border-bottom:2px solid var(--line);font-weight:700;display:block;width:100%}
+.menulist button:last-child{border-bottom:none}
+.menulist .sub{display:block;font-size:12.5px;font-weight:600;margin-top:3px}
+.grouptitle{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;margin:18px 0 8px}
+
+/* ---------- pairing ---------- */
+.pair{border:2px solid var(--line);border-radius:14px;padding:12px;margin-bottom:11px}
+.pair.yes{border-color:var(--accent);border-width:3px}
+.pair .pname{font-weight:800;font-size:15px}
+.pair .pwhy{font-size:13.5px;font-weight:600;margin-top:5px}
+.tag{display:inline-block;border:2px solid var(--fg);border-radius:999px;padding:2px 9px;font-size:11px;font-weight:800;margin-bottom:6px}
+.tag.good{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+
+/* ---------- toast and footer ---------- */
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(90px + env(safe-area-inset-bottom));z-index:90;background:var(--fg);color:var(--bg);padding:12px 18px;border-radius:13px;font-weight:700;font-size:14px;max-width:90vw;text-align:center;display:none}
+#toast.show{display:block}
+footer{border-top:2px solid var(--line);margin-top:34px;padding:18px 14px calc(26px + env(safe-area-inset-bottom));text-align:center;font-size:12.5px;font-weight:700}
+footer .stamp{letter-spacing:.05em}
+footer .priv{font-weight:600;margin-top:6px}
+
+@media print{
+  html,body{background:#ffffff !important;color:#000000 !important}
+  .topbar,.fab,#toast,.chiprow,.search,.morebtn,.bar,.gridhead,.filterbanner{display:none !important}
+  .panel{position:static;display:block}
+  .tile,.section,.led,.care,.pair{border-color:#000000 !important}
+  .chip.on,.pill.due,.rate button.on,.ratingbar i.on,.tag.good{background:#000000 !important;color:#ffffff !important;border-color:#000000 !important}
+}
+</style>
+</head>
+<body>
+
+<div id="updateBar" class="bar">
+  <span>A newer version of this app is on the server.</span>
+  <button class="barbtn" id="reloadBtn">Reload now</button>
+</div>
+
+<div id="nudgeBar" class="bar">
+  <span id="nudgeText">Time to back up your closet.</span>
+  <button class="barbtn" id="nudgeBackup">Back up</button>
+  <button class="barbtn" id="nudgeLater">Later</button>
+</div>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <h1 class="closet-name serif" id="closetName">The Wig Closet</h1>
+    <button class="iconbtn" id="themeBtn" aria-label="Switch between dark and light">
+      <svg id="themeIcon" viewBox="0 0 24 24" aria-hidden="true"></svg>
+    </button>
+    <button class="iconbtn" id="menuBtn" aria-label="Open the menu">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v2.4H3zM3 10.8h18v2.4H3zM3 15.6h18V18H3z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="wrap" id="mainView">
+
+  <section class="ledger" aria-label="Closet totals">
+    <div class="led"><div class="k">Units</div><div class="v" id="ledCount">0</div></div>
+    <div class="led"><div class="k">Paid</div><div class="v" id="ledPaid">0</div></div>
+    <div class="led"><div class="k">Retail</div><div class="v" id="ledRetail">0</div></div>
+    <div class="led"><div class="k">Spread</div><div class="v" id="ledSpread">0</div></div>
+  </section>
+  <p class="ledger-note" id="ledgerNote"></p>
+
+  <section class="care" aria-label="Units due for a wash">
+    <div class="care-head">
+      <span class="care-count" id="careCount">0</span>
+      <span class="care-label" id="careLabel">units are due for a wash</span>
+    </div>
+    <div id="careEmpty" class="care-empty"></div>
+    <div class="care-list" id="careList"></div>
+  </section>
+
+  <input class="search" id="search" type="search" placeholder="Search name, style, colour, notes, storage" autocomplete="off">
+
+  <div id="chips"></div>
+  <button class="morebtn" id="moreBtn">More filters</button>
+
+  <div class="filterbanner" id="filterBanner">
+    <span id="filterBannerText"></span>
+    <button class="smallbtn" id="clearFilters">Clear all filters</button>
+  </div>
+
+  <div class="gridhead">
+    <span class="count" id="gridCount"></span>
+    <button class="smallbtn" id="photoToggle">Showing: unit photo</button>
+    <button class="smallbtn" id="arrangeBtn">Arrange</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div id="emptyState"></div>
+</main>
+
+<button class="fab" id="addFab">
+  <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor" aria-hidden="true"><path d="M11 5h2v14h-2z"/><path d="M5 11h14v2H5z"/></svg>
+  Add a wig
+</button>
+
+<footer>
+  <div class="stamp" id="buildStamp">BUILD 0809261605 &middot; CORE 1.0.0</div>
+  <div>Designed by Harold Brown</div>
+  <div class="priv">Your closet is stored only on this device. Nobody else can see it and it is not backed up anywhere until you back it up yourself.</div>
+</footer>
+
+<!-- ============ panels ============ -->
+
+<div class="panel" id="panel-form">
+  <div class="panel-head"><div class="panel-head-in">
+    <button class="iconbtn" data-close="panel-form" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12 19 6.4 17.6 5 12 10.6z"/></svg></button>
+    <h2 id="formTitle">Add a wig</h2>
+    <button class="smallbtn" id="formSaveTop">Save</button>
+  </div></div>
+  <div class="panel-body" id="formBody"></div>
+</div>
+
+<div class="panel" id="panel-detail">
+  <div class="panel-head"><div class="panel-head-in">
+    <button class="iconbtn" data-close="panel-detail" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12 19 6.4 17.6 5 12 10.6z"/></svg></button>
+    <h2 id="detailTitle">Wig</h2>
+    <button class="smallbtn" id="detailEdit">Edit</button>
+  </div></div>
+  <div class="panel-body" id="detailBody"></div>
+</div>
+
+<div class="panel" id="panel-pair">
+  <div class="panel-head"><div class="panel-head-in">
+    <button class="iconbtn" data-close="panel-pair" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12 19 6.4 17.6 5 12 10.6z"/></svg></button>
+    <h2 id="pairTitle">What works with this unit</h2>
+  </div></div>
+  <div class="panel-body" id="pairBody"></div>
+</div>
+
+<div class="panel" id="panel-menu">
+  <div class="panel-head"><div class="panel-head-in">
+    <button class="iconbtn" data-close="panel-menu" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12 19 6.4 17.6 5 12 10.6z"/></svg></button>
+    <h2>Menu</h2>
+  </div></div>
+  <div class="panel-body" id="menuBody"></div>
+</div>
+
+<div class="panel" id="panel-help">
+  <div class="panel-head"><div class="panel-head-in">
+    <button class="iconbtn" data-close="panel-help" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12 19 6.4 17.6 5 12 10.6z"/></svg></button>
+    <h2>Getting started</h2>
+  </div></div>
+  <div class="panel-body prose" id="helpBody"></div>
+</div>
+
+<div class="panel" id="panel-settings">
+  <div class="panel-head"><div class="panel-head-in">
+    <button class="iconbtn" data-close="panel-settings" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12 19 6.4 17.6 5 12 10.6z"/></svg></button>
+    <h2>Settings</h2>
+  </div></div>
+  <div class="panel-body" id="settingsBody"></div>
+</div>
+
+<div class="panel" id="panel-welcome">
+  <div class="panel-body" id="welcomeBody" style="padding-top:calc(30px + env(safe-area-inset-top))"></div>
+</div>
+
+<div id="toast"></div>
+
+<input type="file" id="filePick" accept=".txt,.json,text/plain,application/json" style="display:none">
+<input type="file" id="csvPick" accept=".csv,text/csv" style="display:none">
+
+<script>
+/* =====================================================================
+   THE WIG CLOSET
+   Single file app. No server, no account, no sync.
+   ===================================================================== */
+
+var BUILD = '0809261605';
+var CORE  = '1.0.0';
+
+/* =====================================================================
+   PRESETS BLOCK
+   Vocabulary only. Edit this block to change the suggestion lists.
+   Nothing here is locked. Anything a user types is added to her own list
+   and sorts ahead of these.
+   ===================================================================== */
+var PRESETS = {
+  fiber:        ['Futura','Bio Futura','Heat friendly synthetic','Standard synthetic','Human hair','Blend'],
+  cap:          ['Free part','T-part','U-part','Monofilament top','Open wefted','Headband','Full lace','360'],
+  lace:         ['Swiss','HD','Transparent','Scandinavian hairline','None'],
+  laceColor:    ['Transparent','Light brown','Medium brown','Dark brown'],
+  capSize:      ['Petite','Standard','Large','Custom'],
+  parting:      ['13x4','13x6','T-part','Free part','Closed weft','Middle','Side'],
+  texture:      ['Straight','Wavy','Curly','Kinky'],
+  colorFamily:  ['Blonde','Brunette','Black','Copper','Red','Grey or silver','Apricot','Colorful'],
+  tone:         ['Warm','Cool','Neutral'],
+  wearMethod:   ['Glueless','Glued','Taped','Band only','Clips'],
+  status:       ['Owned','Wishlist','Sold or passed on','Retired'],
+  storage:      ['Box','Head','Shelf','Bag','Drawer','Hanging'],
+  place:        ['Online shop','Local shop','Gift','Secondhand'],
+  style:        [],
+  colorway:     [],
+  features:     ['Baby hairs','Bleached knots','Plucked hairline','Adjustable band','Velvet ear tabs','Lace pre-cut','Bangs','Curtain bangs','Layers','Money piece','Shadow root','Tinsel']
+};
+
+var HEAT_SAFE = ['Futura','Bio Futura','Heat friendly synthetic','Human hair','Blend'];
+var NO_HEAT   = ['Standard synthetic'];
+var LACE_CAPS = ['Free part','T-part','U-part','Full lace','360'];
+var NO_LACE   = ['Headband','Open wefted','Monofilament top'];
+
+/* =====================================================================
+   PRODUCT RULES for the pairing engine.
+   Hard filters run first on fibre and cap construction, because heat and
+   adhesive are a physical yes or no. Soft scoring runs after.
+   ===================================================================== */
+var PRODUCTS = [
+  { name:'Wig grip band',
+    why:'Holds a glueless unit steady without any adhesive touching the lace.',
+    score:function(w){ var s=1,r=[];
+      if(w.wearMethod==='Glueless'||w.wearMethod==='Band only'){s+=3;r.push('you wear this one glueless');}
+      if(w.cap==='Headband'){s-=1;}
+      return {s:s,r:r}; } },
+
+  { name:'Lace adhesive, waterproof',
+    needsLace:true,
+    why:'Bonds a lace front at the hairline for a hold that survives heat and sweat.',
+    score:function(w){ var s=1,r=[];
+      if(w.wearMethod==='Glued'){s+=3;r.push('you already glue this one');}
+      if(w.lace==='HD'||w.lace==='Swiss'){s+=1;r.push('fine lace holds a thin adhesive line well');}
+      return {s:s,r:r}; } },
+
+  { name:'Lace tape strips',
+    needsLace:true,
+    why:'A lighter hold than glue, and it comes off without solvent.',
+    score:function(w){ var s=1,r=[];
+      if(w.wearMethod==='Taped'){s+=3;r.push('you already tape this one');}
+      if(w.wearMethod==='Glueless'){s+=1;r.push('a gentle step up from band only wear');}
+      return {s:s,r:r}; } },
+
+  { name:'Oil based adhesive remover',
+    needsLace:true,
+    why:'Breaks down adhesive slowly, which is the safest way to take a bonded unit off.',
+    score:function(w){ var s=1,r=[];
+      if(w.wearMethod==='Glued'||w.wearMethod==='Taped'){s+=3;r.push('you need a remover for how this one is worn');}
+      if(w.features && w.features.indexOf('Bleached knots')>-1){s+=1;r.push('bleached knots are fragile, so slow removal matters more');}
+      return {s:s,r:r}; } },
+
+  { name:'Alcohol based adhesive remover',
+    needsLace:true, caution:'Fast but drying. It can weaken fine lace and loosen bleached knots over time. Use it sparingly and never as your only remover.',
+    why:'Cuts adhesive quickly when you are in a hurry.',
+    score:function(w){ var s=1,r=[];
+      if(w.wearMethod==='Glued'){s+=1;}
+      if(w.features && w.features.indexOf('Bleached knots')>-1){s-=2;r.push('bleached knots on this unit make a harsh remover a poor first choice');}
+      if(w.lace==='HD'){s-=1;r.push('HD lace is thin enough to be worth protecting');}
+      return {s:s,r:r}; } },
+
+  { name:'Scalp barrier or protective film',
+    needsLace:true,
+    why:'Puts a layer between adhesive and skin so removal is easier on you.',
+    score:function(w){ var s=1,r=[];
+      if(w.wearMethod==='Glued'){s+=3;r.push('this one goes on with adhesive');}
+      return {s:s,r:r}; } },
+
+  { name:'Low heat flat iron or curling wand',
+    needsHeatSafe:true, caution:'Stay at the low end of the dial. Heat friendly synthetic scorches at temperatures human hair shrugs off, and the damage does not grow back.',
+    why:'Lets you reset the style instead of living with the shape it came in.',
+    score:function(w){ var s=1,r=[];
+      if(w.texture==='Straight'||w.texture==='Wavy'){s+=2;r.push('straight and wavy units take heat styling best');}
+      if(w.density && Number(w.density)>=150){s+=1;r.push('a dense unit needs sectioning and heat to sit flat');}
+      return {s:s,r:r}; } },
+
+  { name:'Heat protectant made for wigs',
+    needsHeatSafe:true,
+    why:'Buys you a margin of error on a fibre that cannot repair itself.',
+    score:function(w){ var s=2,r=['anything you heat should get this first']; return {s:s,r:r}; } },
+
+  { name:'Handheld steamer',
+    needsHeatSafe:true,
+    why:'Brings curls and waves back after they drop, with far less risk than an iron.',
+    score:function(w){ var s=1,r=[];
+      if(w.texture==='Curly'||w.texture==='Kinky'){s+=3;r.push('this is the gentlest way to revive a curl pattern');}
+      if(w.texture==='Wavy'){s+=2;r.push('waves come back well with steam');}
+      return {s:s,r:r}; } },
+
+  { name:'Synthetic wig shampoo, sulfate free',
+    fiberIn:['Futura','Bio Futura','Heat friendly synthetic','Standard synthetic'],
+    why:'Cleans without stripping the coating that keeps synthetic fibre smooth.',
+    score:function(w){ return {s:3,r:['matched to the fibre on this unit']}; } },
+
+  { name:'Sulfate free shampoo for human hair',
+    fiberIn:['Human hair','Blend'],
+    why:'A wefted human hair unit has no scalp feeding it, so gentle washing is the whole game.',
+    score:function(w){ return {s:3,r:['matched to the fibre on this unit']}; } },
+
+  { name:'Leave in conditioner or detangling spray',
+    why:'Cuts friction so combing does not pull fibre out of the wefts.',
+    score:function(w){ var s=2,r=[];
+      if(w.length && Number(w.length)>=22){s+=2;r.push('long lengths tangle at the nape first');}
+      if(w.texture==='Curly'||w.texture==='Kinky'){s+=1;r.push('curl patterns need slip to detangle');}
+      return {s:s,r:r}; } },
+
+  { name:'Wide tooth comb',
+    why:'The only tool that should touch a curl pattern, working from the ends upward.',
+    score:function(w){ var s=2,r=[];
+      if(w.texture==='Curly'||w.texture==='Kinky'){s+=3;r.push('never use a brush on this texture');}
+      return {s:s,r:r}; } },
+
+  { name:'Loop brush',
+    why:'The looped bristles slide past knots instead of ripping through them.',
+    score:function(w){ var s=1,r=[];
+      if(w.texture==='Straight'||w.texture==='Wavy'){s+=3;r.push('good match for this texture');}
+      if(w.texture==='Curly'||w.texture==='Kinky'){s-=3;r.push('brushing would pull this curl pattern apart');}
+      return {s:s,r:r}; } },
+
+  { name:'Canvas head and stand',
+    why:'Keeps the cap in shape and the hair off the floor of a box.',
+    score:function(w){ var s=2,r=[];
+      if(!w.storage){s+=2;r.push('you have not recorded where this one lives yet');}
+      if(w.storage==='Box'||w.storage==='Bag'||w.storage==='Drawer'){s+=1;r.push('stored flat, so it will hold its shape better on a head');}
+      return {s:s,r:r}; } },
+
+  { name:'Satin storage bag',
+    why:'Satin does not grab fibre the way cotton does.',
+    score:function(w){ var s=2,r=[];
+      if(w.length && Number(w.length)>=22){s+=1;r.push('long units need somewhere to lie without folding');}
+      return {s:s,r:r}; } },
+
+  { name:'Knot sealer',
+    needsLace:true,
+    why:'Sets the knots from inside the cap so shedding slows down.',
+    score:function(w){ var s=1,r=[];
+      if(w.features && w.features.indexOf('Bleached knots')>-1){s+=3;r.push('bleached knots shed sooner without a sealer');}
+      return {s:s,r:r}; } },
+
+  { name:'Lace tint spray',
+    needsLace:true,
+    why:'Takes the lace from a flat colour to something close to your skin.',
+    score:function(w){ var s=1,r=[];
+      if(w.laceColor==='Transparent'){s+=3;r.push('transparent lace almost always needs tinting');}
+      if(w.features && w.features.indexOf('Plucked hairline')>-1){s+=1;r.push('a plucked hairline is wasted under untinted lace');}
+      return {s:s,r:r}; } },
+
+  { name:'Mousse or curl refresher',
+    why:'Puts definition back into a curl without heat.',
+    score:function(w){ var s=1,r=[];
+      if(w.texture==='Curly'||w.texture==='Kinky'){s+=3;r.push('matched to this texture');}
+      if(w.texture==='Wavy'){s+=1;}
+      return {s:s,r:r}; } }
+];
+
+/* =====================================================================
+   CORE 1.0.0 begins.
+   Shared with the fragrance and watch closets. Keep identical across all
+   three files and bump CORE when this block changes.
+   ===================================================================== */
+
+/* ---------- tiny helpers ---------- */
+function $(id){ return document.getElementById(id); }
+function el(tag, cls, txt){ var e=document.createElement(tag); if(cls)e.className=cls; if(txt!=null)e.textContent=txt; return e; }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function uid(){ return 'w' + Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+function toast(msg){ var t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(function(){ t.classList.remove('show'); },2600); }
+function num(v){ if(v===''||v==null) return null; var n=Number(v); return isFinite(n)?n:null; }
+function money(n){ return '$' + (Math.round(n)).toLocaleString(); }
+function today(){ return new Date().toISOString().slice(0,10); }
+function daysBetween(a,b){ return Math.floor((b-a)/86400000); }
+function stampNow(){
+  var d=new Date(), p=function(n){ return (n<10?'0':'')+n; };
+  return p(d.getMonth()+1)+p(d.getDate())+String(d.getFullYear()).slice(2)+p(d.getHours())+p(d.getMinutes());
+}
+function fileStamp(){
+  var d=new Date(), p=function(n){ return (n<10?'0':'')+n; };
+  return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'-'+p(d.getHours())+p(d.getMinutes());
+}
+
+/* ---------- storage: IndexedDB with a localStorage fallback ---------- */
+var Store = (function(){
+  var DBNAME='wigcloset', VER=1, db=null, mode='idb';
+
+  function open(){
+    return new Promise(function(res){
+      if(!window.indexedDB){ mode='ls'; return res(); }
+      var rq;
+      try{ rq = indexedDB.open(DBNAME, VER); }catch(e){ mode='ls'; return res(); }
+      rq.onupgradeneeded=function(e){
+        var d=e.target.result;
+        if(!d.objectStoreNames.contains('items')) d.createObjectStore('items',{keyPath:'id'});
+        if(!d.objectStoreNames.contains('meta'))  d.createObjectStore('meta',{keyPath:'k'});
+        if(!d.objectStoreNames.contains('snaps')) d.createObjectStore('snaps',{keyPath:'k'});
+      };
+      rq.onsuccess=function(e){ db=e.target.result; mode='idb'; res(); };
+      rq.onerror=function(){ mode='ls'; res(); };
+      setTimeout(function(){ if(!db && mode==='idb'){ mode='ls'; res(); } }, 3000);
+    });
+  }
+  function lsKey(store){ return 'wigcloset:'+store; }
+  function lsRead(store){ try{ return JSON.parse(localStorage.getItem(lsKey(store))||'[]'); }catch(e){ return []; } }
+  function lsWrite(store,arr){ try{ localStorage.setItem(lsKey(store), JSON.stringify(arr)); return true; }catch(e){ return false; } }
+
+  function tx(store,m){ return db.transaction(store,m).objectStore(store); }
+
+  function all(store){
+    if(mode==='ls') return Promise.resolve(lsRead(store));
+    return new Promise(function(res){
+      var out=[], rq=tx(store,'readonly').openCursor();
+      rq.onsuccess=function(e){ var c=e.target.result; if(c){ out.push(c.value); c.continue(); } else res(out); };
+      rq.onerror=function(){ res([]); };
+    });
+  }
+  function put(store,obj){
+    if(mode==='ls'){
+      var arr=lsRead(store), key=(store==='items')?'id':'k', i=arr.findIndex(function(x){ return x[key]===obj[key]; });
+      if(i>-1) arr[i]=obj; else arr.push(obj);
+      return Promise.resolve(lsWrite(store,arr));
+    }
+    return new Promise(function(res){ var rq=tx(store,'readwrite').put(obj); rq.onsuccess=function(){res(true);}; rq.onerror=function(){res(false);}; });
+  }
+  function del(store,key){
+    if(mode==='ls'){
+      var arr=lsRead(store), k=(store==='items')?'id':'k';
+      lsWrite(store, arr.filter(function(x){ return x[k]!==key; }));
+      return Promise.resolve(true);
+    }
+    return new Promise(function(res){ var rq=tx(store,'readwrite').delete(key); rq.onsuccess=function(){res(true);}; rq.onerror=function(){res(false);}; });
+  }
+  function clear(store){
+    if(mode==='ls'){ lsWrite(store,[]); return Promise.resolve(true); }
+    return new Promise(function(res){ var rq=tx(store,'readwrite').clear(); rq.onsuccess=function(){res(true);}; rq.onerror=function(){res(false);}; });
+  }
+  return { open:open, all:all, put:put, del:del, clear:clear, mode:function(){ return mode; } };
+})();
+
+/* ---------- app state ---------- */
+var items=[], settings={}, filters={}, search='', photoView='unit', arranging=false, moreOpen=false, editingId=null, formDraft=null, currentId=null;
+
+var DEFAULT_SETTINGS = {
+  k:'settings',
+  closetName:'',
+  theme:'light',
+  ratingNames:['Comfort','Realism','How much I love it','How it holds up'],
+  washEveryDefault:8,
+  changeCount:0,
+  lastBackup:null,
+  seenWelcome:false,
+  order:[]
+};
+
+function blankItem(){
+  return {
+    id:uid(), name:'', style:'', colorway:'', place:'', status:'Owned',
+    fiber:'', cap:'', lace:'', laceColor:'', capSize:'', parting:'',
+    density:'', length:'', texture:'', combs:'', features:[],
+    colorFamily:'', tone:'', colorCode:'', wearMethod:'',
+    pricePaid:'', retail:'', purchaseDate:'',
+    wears:0, lastWorn:'', lastWashed:'', washEvery:'',
+    storage:'', storageLabel:'',
+    ratings:[0,0,0,0], notes:'', comments:'',
+    photoUnit:'', photoWorn:'',
+    order:0, created:new Date().toISOString(), updated:new Date().toISOString()
+  };
+}
+
+/* ---------- theme ---------- */
+var SUN='<path d="M12 7a5 5 0 100 10 5 5 0 000-10zm0-6 1.8 3.2h-3.6zm0 22-1.8-3.2h3.6zM1 12l3.2-1.8v3.6zm22 0-3.2 1.8v-3.6zM4.2 4.2l3.5.9-2.6 2.6zm15.6 15.6-3.5-.9 2.6-2.6zM19.8 4.2l-.9 3.5-2.6-2.6zM4.2 19.8l.9-3.5 2.6 2.6z"/>';
+var MOON='<path d="M20.5 15.2A8.6 8.6 0 019.3 3.9a8.7 8.7 0 102.5 17 8.7 8.7 0 008.7-5.7z"/>';
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  $('themeIcon').innerHTML = (t==='dark') ? MOON : SUN;
+  $('themeBtn').setAttribute('aria-label', t==='dark' ? 'Dark mode is on. Switch to light.' : 'Light mode is on. Switch to dark.');
+  var m=document.querySelector('meta[name="theme-color"]');
+  if(m) m.setAttribute('content', t==='dark' ? '#000000' : '#D4276E');
+}
+
+/* ---------- printing always goes light ---------- */
+var themeBeforePrint=null;
+window.addEventListener('beforeprint', function(){
+  themeBeforePrint = document.documentElement.getAttribute('data-theme');
+  document.documentElement.setAttribute('data-theme','light');
+});
+window.addEventListener('afterprint', function(){
+  if(themeBeforePrint) document.documentElement.setAttribute('data-theme', themeBeforePrint);
+  themeBeforePrint=null;
+});
+
+/* ---------- panel stack, wired to the Android back button ---------- */
+var stack=[];
+function openPanel(id){
+  var p=$(id); if(!p) return;
+  p.classList.add('open');
+  stack.push(id);
+  history.pushState({panel:id, depth:stack.length}, '');
+  p.scrollTop=0;
+  document.body.style.overflow='hidden';
+}
+/* Every close goes through history, so the Android back button and the close
+   button in the corner follow exactly the same path and nested panels peel off
+   one at a time. */
+function closeTop(){ if(stack.length) history.back(); }
+window.addEventListener('popstate', function(){
+  if(!stack.length) return;
+  var id=stack.pop();
+  var p=$(id); if(p) p.classList.remove('open');
+  if(!stack.length) document.body.style.overflow='';
+  if(typeof afterClose[id]==='function'){ var fn=afterClose[id]; afterClose[id]=null; setTimeout(fn, 0); }
+});
+var afterClose={};
+document.addEventListener('click', function(e){
+  var b=e.target.closest('[data-close]');
+  if(b) closeTop();
+});
+
+/* ---------- photo capture and resize ---------- */
+function readAndResize(file, targetBytes, maxEdge){
+  return new Promise(function(res, rej){
+    var fr=new FileReader();
+    fr.onerror=function(){ rej(new Error('Could not read that image.')); };
+    fr.onload=function(){
+      var img=new Image();
+      img.onerror=function(){ rej(new Error('That file is not an image this phone can open.')); };
+      img.onload=function(){
+        var w=img.width, h=img.height, scale=Math.min(1, maxEdge/Math.max(w,h));
+        w=Math.round(w*scale); h=Math.round(h*scale);
+        var q=0.82, out='';
+        for(var pass=0; pass<9; pass++){
+          var c=document.createElement('canvas'); c.width=w; c.height=h;
+          var ctx=c.getContext('2d');
+          ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,w,h);
+          ctx.drawImage(img,0,0,w,h);
+          out=c.toDataURL('image/jpeg', q);
+          if(out.length*0.75 <= targetBytes) break;
+          if(q>0.45){ q-=0.09; } else { w=Math.round(w*0.85); h=Math.round(h*0.85); }
+        }
+        res(out);
+      };
+      img.src=fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+
+/* ---------- snapshots and undo ---------- */
+function takeSnapshot(label){
+  return Store.all('snaps').then(function(snaps){
+    snaps.sort(function(a,b){ return a.at<b.at?1:-1; });
+    var keep=snaps.slice(0,2);
+    var dead=snaps.slice(2);
+    var chain=Promise.resolve();
+    dead.forEach(function(s){ chain=chain.then(function(){ return Store.del('snaps', s.k); }); });
+    return chain.then(function(){
+      return Store.put('snaps', { k:'snap'+Date.now(), at:new Date().toISOString(), label:label, items:JSON.parse(JSON.stringify(items)), settings:JSON.parse(JSON.stringify(settings)) });
+    });
+  });
+}
+function listSnapshots(){
+  return Store.all('snaps').then(function(s){ s.sort(function(a,b){ return a.at<b.at?1:-1; }); return s; });
+}
+function undoTo(snapKey){
+  return Store.all('snaps').then(function(snaps){
+    var s=snaps.filter(function(x){ return x.k===snapKey; })[0];
+    if(!s){ toast('That undo point is gone.'); return; }
+    return Store.clear('items').then(function(){
+      var chain=Promise.resolve();
+      s.items.forEach(function(it){ chain=chain.then(function(){ return Store.put('items', it); }); });
+      return chain;
+    }).then(function(){
+      items=s.items;
+      settings=s.settings; settings.k='settings';
+      return Store.put('meta', settings);
+    }).then(function(){
+      return Store.del('snaps', snapKey);
+    }).then(function(){
+      applyTheme(settings.theme||'light');
+      renderAll();
+      toast('Undone. Your closet is back to how it was.');
+    });
+  });
+}
+
+/* ---------- change counting and backup nudges ---------- */
+function bumpChange(){
+  settings.changeCount = (settings.changeCount||0) + 1;
+  Store.put('meta', settings);
+  checkNudge();
+}
+function checkNudge(){
+  var reason='';
+  if((settings.changeCount||0) >= 4) reason='You have made '+settings.changeCount+' changes since your last backup.';
+  if(settings.lastBackup){
+    var d=daysBetween(new Date(settings.lastBackup), new Date());
+    if(d>=7) reason='Your last backup was '+d+' days ago.';
+  } else if(items.length>0 && !reason){
+    reason='You have not backed up this closet yet.';
+  }
+  if(reason && !window._nudgeDismissed){
+    $('nudgeText').textContent=reason+' Back it up so a lost phone does not mean a lost closet.';
+    $('nudgeBar').classList.add('show');
+  } else {
+    $('nudgeBar').classList.remove('show');
+  }
+}
+
+/* ---------- backup payload ---------- */
+function buildBackup(){
+  return JSON.stringify({
+    app:'wig-closet', format:1, build:BUILD, core:CORE,
+    exportedAt:new Date().toISOString(),
+    settings:settings, items:items
+  }, null, 1);
+}
+function backupBytes(){ return buildBackup().length; }
+function prettyBytes(n){
+  if(n<1024) return n+' B';
+  if(n<1048576) return (n/1024).toFixed(0)+' KB';
+  return (n/1048576).toFixed(1)+' MB';
+}
+function downloadText(text, filename, mime){
+  var blob=new Blob([text], {type:mime||'text/plain'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a'); a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 3000);
+}
+function markBackedUp(){
+  settings.lastBackup=new Date().toISOString();
+  settings.changeCount=0;
+  window._nudgeDismissed=false;
+  Store.put('meta', settings).then(checkNudge);
+}
+function shareBackup(){
+  var text=buildBackup();
+  var fname='wig-closet-backup-'+fileStamp()+'.txt';
+  var file;
+  try{ file=new File([text], fname, {type:'text/plain'}); }catch(e){ file=null; }
+  if(file && navigator.canShare && navigator.canShare({files:[file]}) && navigator.share){
+    navigator.share({files:[file], title:'Wig closet backup'}).then(function(){
+      markBackedUp(); toast('Backup sent. Save it somewhere you will find it again.');
+    }).catch(function(){});
+  } else {
+    downloadText(text, fname);
+    markBackedUp();
+    toast('Your phone did not offer a share sheet, so the file was downloaded instead.');
+  }
+}
+function saveBackupLocal(){
+  downloadText(buildBackup(), 'wig-closet-backup-'+fileStamp()+'.txt');
+  markBackedUp();
+  toast('Backup saved to your downloads.');
+}
+
+/* ---------- CSV ---------- */
+var CSV_COLS = ['name','style','colorway','place','status','fiber','cap','lace','laceColor','capSize','parting','density','length','texture','combs','features','colorFamily','tone','colorCode','wearMethod','pricePaid','retail','purchaseDate','wears','lastWorn','lastWashed','washEvery','storage','storageLabel','rating1','rating2','rating3','rating4','notes','comments'];
+var CSV_HEADERS = ['Name','Style','Colourway','Place of purchase','Status','Fibre','Cap construction','Lace type','Lace colour','Cap size','Parting','Density','Length','Texture','Combs','Features','Colour family','Tone','Colour code','Wear method','Price paid','Retail value','Purchase date','Wears','Last worn','Last washed','Wash every N wears','Storage','Storage label','Comfort','Realism','How much I love it','How it holds up','Notes','My comments'];
+
+function csvCell(v){ v=(v==null?'':String(v)); return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }
+function exportCsv(){
+  var rows=[CSV_HEADERS.join(',')];
+  items.slice().sort(byOrder).forEach(function(w){
+    rows.push(CSV_COLS.map(function(c){
+      if(c==='features') return csvCell((w.features||[]).join('; '));
+      if(c.indexOf('rating')===0) return csvCell(w.ratings[Number(c.slice(6))-1]||'');
+      return csvCell(w[c]);
+    }).join(','));
+  });
+  downloadText(rows.join('\n'), 'wig-closet-'+fileStamp()+'.csv', 'text/csv');
+  toast('Spreadsheet exported. Photos are not included in a spreadsheet.');
+}
+function parseCsv(text){
+  var rows=[], row=[], cur='', q=false;
+  text=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  for(var i=0;i<text.length;i++){
+    var c=text[i];
+    if(q){
+      if(c==='"'){ if(text[i+1]==='"'){ cur+='"'; i++; } else q=false; }
+      else cur+=c;
+    } else {
+      if(c==='"') q=true;
+      else if(c===','){ row.push(cur); cur=''; }
+      else if(c==='\n'){ row.push(cur); rows.push(row); row=[]; cur=''; }
+      else cur+=c;
+    }
+  }
+  if(cur.length||row.length){ row.push(cur); rows.push(row); }
+  return rows.filter(function(r){ return r.some(function(c){ return String(c).trim()!==''; }); });
+}
+function normHeader(h){ return String(h||'').toLowerCase().replace(/[^a-z0-9]/g,''); }
+var HEADER_MAP = (function(){
+  var m={};
+  CSV_HEADERS.forEach(function(h,i){ m[normHeader(h)] = CSV_COLS[i]; });
+  m['colorway']='colorway'; m['color']='colorFamily'; m['colorfamily']='colorFamily';
+  m['fiber']='fiber'; m['lacecolor']='laceColor'; m['colorcode']='colorCode';
+  m['cap']='cap'; m['construction']='cap'; m['brand']='place'; m['shop']='place';
+  m['price']='pricePaid'; m['paid']='pricePaid'; m['value']='retail'; m['inches']='length';
+  m['location']='storage'; m['comments']='comments'; m['mycomments']='comments';
+  return m;
+})();
+
+function importCsvText(text){
+  var rows=parseCsv(text);
+  if(rows.length<2){ toast('That file has no rows in it.'); return; }
+  var head=rows[0].map(normHeader);
+  var mapped=head.map(function(h){ return HEADER_MAP[h]||null; });
+  if(mapped.indexOf('name')===-1){ toast('That spreadsheet needs a column called Name.'); return; }
+  takeSnapshot('before importing a spreadsheet').then(function(){
+    var added=0, maxOrder=items.reduce(function(a,b){ return Math.max(a, b.order||0); }, 0);
+    var chain=Promise.resolve();
+    rows.slice(1).forEach(function(r){
+      var w=blankItem();
+      mapped.forEach(function(key,i){
+        if(!key) return;
+        var v=(r[i]||'').trim();
+        if(!v) return;
+        if(key==='features'){ w.features=v.split(/[;|]/).map(function(s){ return s.trim(); }).filter(Boolean); }
+        else if(key.indexOf('rating')===0){ w.ratings[Number(key.slice(6))-1]=num(v)||0; }
+        else w[key]=v;
+      });
+      if(!w.name) return;
+      w.wears=num(w.wears)||0;
+      maxOrder++; w.order=maxOrder;
+      added++;
+      chain=chain.then(function(){ items.push(w); return Store.put('items', w); });
+    });
+    return chain.then(function(){
+      rebuildUserPresets(); bumpChange(); renderAll();
+      toast(added+' wigs imported. Nothing was replaced, they were added to what you had.');
+    });
+  });
+}
+
+/* ---------- restore ---------- */
+function restoreFromText(text){
+  var data;
+  try{ data=JSON.parse(text); }catch(e){ toast('That file is not a wig closet backup.'); return; }
+  if(!data || data.app!=='wig-closet' || !Array.isArray(data.items)){ toast('That file is not a wig closet backup.'); return; }
+  var msg='This will replace everything in this closet with the '+data.items.length+' wigs in that backup file.\n\nYour current closet has '+items.length+'. You can undo this straight afterwards from the menu.\n\nReplace it now?';
+  if(!confirm(msg)) return;
+  takeSnapshot('before restoring a backup').then(function(){
+    return Store.clear('items');
+  }).then(function(){
+    var chain=Promise.resolve();
+    data.items.forEach(function(it){
+      if(!it.ratings) it.ratings=[0,0,0,0];
+      if(!it.features) it.features=[];
+      chain=chain.then(function(){ return Store.put('items', it); });
+    });
+    return chain.then(function(){ items=data.items; });
+  }).then(function(){
+    if(data.settings){
+      var keep=settings.theme;
+      settings=Object.assign({}, DEFAULT_SETTINGS, data.settings, {k:'settings', theme:data.settings.theme||keep});
+      return Store.put('meta', settings);
+    }
+  }).then(function(){
+    applyTheme(settings.theme||'light');
+    rebuildUserPresets();
+    renderAll();
+    toast('Restored '+items.length+' wigs.');
+  });
+}
+
+/* ---------- update check against the live file ---------- */
+function comparable(stamp){
+  if(!/^\d{10}$/.test(stamp)) return null;
+  return stamp.slice(4,6)+stamp.slice(0,2)+stamp.slice(2,4)+stamp.slice(6,10);
+}
+function checkForUpdate(){
+  if(location.protocol==='file:') return;
+  fetch(location.pathname + '?cachebust=' + Date.now(), {cache:'no-store'})
+    .then(function(r){ return r.ok ? r.text() : null; })
+    .then(function(t){
+      if(!t) return;
+      var m = t.match(/var\s+BUILD\s*=\s*'(\d{10})'/);
+      if(!m) return;
+      var live=comparable(m[1]), here=comparable(BUILD);
+      if(live && here && live>here) $('updateBar').classList.add('show');
+    })
+    .catch(function(){});
+}
+/* ---------- installing to the home screen ---------- */
+var deferredInstall=null;
+function isStandalone(){
+  return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone===true;
+}
+function isIos(){ return /iphone|ipad|ipod/i.test(navigator.userAgent); }
+function canOfferInstall(){ return !isStandalone() && (deferredInstall || isIos()); }
+/* The event is captured only so that Install this app in the menu can offer the
+   real Chrome prompt if someone goes looking for it. Nothing is pushed at anyone. */
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();
+  deferredInstall=e;
+});
+window.addEventListener('appinstalled', function(){
+  deferredInstall=null;
+  toast('Installed. Open it from your home screen from now on.');
+});
+function installInstructions(){
+  if(isIos()) return 'To install this on an iPhone or iPad: tap the share button at the bottom of Safari, scroll down, then tap Add to Home Screen.';
+  return 'To install this: open the browser menu, usually three dots in the corner, then tap Install app or Add to home screen.';
+}
+function doInstall(){
+  if(deferredInstall){
+    var p=deferredInstall; deferredInstall=null;
+    p.prompt();
+    if(p.userChoice) p.userChoice.then(function(c){
+      if(!c || c.outcome!=='accepted') toast('No problem. It works just as well in the browser.');
+    });
+  } else {
+    alert(installInstructions());
+  }
+}
+/* CORE 1.0.0 ends. Everything below is specific to the wig closet. */
+
+/* =====================================================================
+   derived values
+   ===================================================================== */
+function byOrder(a,b){ return (a.order||0)-(b.order||0); }
+function washEveryFor(w){ return num(w.washEvery) || settings.washEveryDefault || 8; }
+function countWearsSinceWash(w){
+  if(typeof w.wearsSinceWash === 'number') return w.wearsSinceWash;
+  return num(w.wears)||0;
+}
+function isDue(w){
+  if(w.status==='Wishlist') return false;
+  if(countWearsSinceWash(w) >= washEveryFor(w)) return true;
+  if(w.lastWashed && (num(w.wears)||0) > 0 && daysBetween(new Date(w.lastWashed), new Date()) >= 120) return true;
+  return false;
+}
+function dueReason(w){
+  var every=washEveryFor(w), since=countWearsSinceWash(w);
+  if(since>=every) return since+' wears since the last wash';
+  if(w.lastWashed) return 'last washed '+daysBetween(new Date(w.lastWashed), new Date())+' days ago';
+  return 'never washed';
+}
+function lengthBucket(w){
+  var n=num(w.length);
+  if(n==null) return '';
+  if(n<14) return 'Short';
+  if(n<=20) return 'Mid';
+  return 'Long';
+}
+function displayName(w){
+  if(w.name) return w.name;
+  if(w.style && w.colorway) return w.style+' ('+w.colorway+')';
+  return w.style || w.colorway || 'Untitled wig';
+}
+function tileSub(w){
+  var bits=[];
+  if(w.colorway) bits.push(w.colorway);
+  else if(w.colorFamily) bits.push(w.colorFamily);
+  if(w.length) bits.push(w.length+' in');
+  if(w.texture) bits.push(w.texture);
+  return bits.join(', ');
+}
+
+/* ---------- user presets grow from what people type ---------- */
+var userPresets={};
+function rebuildUserPresets(){
+  userPresets={};
+  var fields=['style','colorway','place','storage','colorCode','parting','capSize','fiber','cap','lace','laceColor','texture','colorFamily','tone','wearMethod'];
+  fields.forEach(function(f){
+    var counts={};
+    items.forEach(function(w){ var v=(w[f]||'').trim(); if(v) counts[v]=(counts[v]||0)+1; });
+    userPresets[f]=Object.keys(counts).sort(function(a,b){ return counts[b]-counts[a] || a.localeCompare(b); });
+  });
+}
+function suggestionsFor(field){
+  var mine=userPresets[field]||[];
+  var seeded=(PRESETS[field]||[]).filter(function(v){ return mine.indexOf(v)===-1; });
+  return mine.concat(seeded);
+}
+
+/* =====================================================================
+   filtering
+   ===================================================================== */
+var CHIP_GROUPS_MAIN = [
+  {key:'care',   label:'Care',    computed:true},
+  {key:'colorFamily', label:'Colour'},
+  {key:'lengthBucket', label:'Length', computed:true},
+  {key:'texture', label:'Texture'},
+  {key:'storage', label:'Storage'}
+];
+var CHIP_GROUPS_MORE = [
+  {key:'cap', label:'Construction'},
+  {key:'capSize', label:'Cap size'},
+  {key:'fiber', label:'Fibre'},
+  {key:'lace', label:'Lace'},
+  {key:'parting', label:'Parting'},
+  {key:'place', label:'Bought from'},
+  {key:'wearMethod', label:'Worn'},
+  {key:'status', label:'Status'},
+  {key:'features', label:'Features', multi:true}
+];
+
+function valuesFor(key){
+  var counts={};
+  var pool=items;
+  if(key==='care'){
+    counts['Due for a wash']=pool.filter(isDue).length;
+    counts['Never worn']=pool.filter(function(w){ return (num(w.wears)||0)===0; }).length;
+    counts['No price entered']=pool.filter(function(w){ return num(w.pricePaid)==null; }).length;
+    Object.keys(counts).forEach(function(k){ if(!counts[k]) delete counts[k]; });
+    return counts;
+  }
+  if(key==='lengthBucket'){
+    pool.forEach(function(w){ var b=lengthBucket(w); if(b) counts[b]=(counts[b]||0)+1; });
+    return counts;
+  }
+  if(key==='features'){
+    pool.forEach(function(w){ (w.features||[]).forEach(function(f){ counts[f]=(counts[f]||0)+1; }); });
+    return counts;
+  }
+  pool.forEach(function(w){ var v=(w[key]||'').trim(); if(v) counts[v]=(counts[v]||0)+1; });
+  return counts;
+}
+function matchesFilters(w){
+  var ok=true;
+  Object.keys(filters).forEach(function(key){
+    var sel=filters[key];
+    if(!sel || !sel.length) return;
+    if(key==='care'){
+      var pass=sel.some(function(v){
+        if(v==='Due for a wash') return isDue(w);
+        if(v==='Never worn') return (num(w.wears)||0)===0;
+        if(v==='No price entered') return num(w.pricePaid)==null;
+        return false;
+      });
+      if(!pass) ok=false;
+    } else if(key==='lengthBucket'){
+      if(sel.indexOf(lengthBucket(w))===-1) ok=false;
+    } else if(key==='features'){
+      var has=sel.every(function(f){ return (w.features||[]).indexOf(f)>-1; });
+      if(!has) ok=false;
+    } else {
+      if(sel.indexOf((w[key]||'').trim())===-1) ok=false;
+    }
+  });
+  return ok;
+}
+function matchesSearch(w){
+  if(!search) return true;
+  var q=search.toLowerCase();
+  var hay=[w.name,w.style,w.colorway,w.colorCode,w.place,w.storage,w.storageLabel,w.notes,w.comments,w.colorFamily,w.texture,w.cap,w.fiber].join(' ').toLowerCase();
+  return hay.indexOf(q)>-1;
+}
+function visibleItems(){
+  return items.filter(function(w){ return matchesFilters(w) && matchesSearch(w); }).sort(byOrder);
+}
+function activeFilterCount(){
+  return Object.keys(filters).reduce(function(a,k){ return a + (filters[k]?filters[k].length:0); }, 0);
+}
+
+/* =====================================================================
+   rendering
+   ===================================================================== */
+function renderAll(){
+  renderLedger(); renderCare(); renderChips(); renderGrid();
+  $('closetName').textContent = settings.closetName ? settings.closetName+"'s Wig Closet" : 'The Wig Closet';
+  document.title = settings.closetName ? settings.closetName+"'s Wig Closet" : 'The Wig Closet';
+  checkNudge();
+}
+
+function renderLedger(){
+  var owned=items.filter(function(w){ return w.status!=='Wishlist'; });
+  var paidItems=owned.filter(function(w){ return num(w.pricePaid)!=null; });
+  var retailItems=owned.filter(function(w){ return num(w.retail)!=null; });
+  var bothItems=owned.filter(function(w){ return num(w.pricePaid)!=null && num(w.retail)!=null; });
+  var paid=paidItems.reduce(function(a,w){ return a+num(w.pricePaid); },0);
+  var retail=retailItems.reduce(function(a,w){ return a+num(w.retail); },0);
+  var spread=bothItems.reduce(function(a,w){ return a+(num(w.retail)-num(w.pricePaid)); },0);
+
+  $('ledCount').textContent=owned.length;
+  $('ledPaid').textContent=paidItems.length?money(paid):'not set';
+  $('ledRetail').textContent=retailItems.length?money(retail):'not set';
+  $('ledSpread').textContent=bothItems.length?money(spread):'not set';
+
+  var unpriced=owned.length-paidItems.length;
+  var note=[];
+  if(owned.length===0) note.push('Nothing in the closet yet.');
+  else{
+    note.push('Paid is the total across '+paidItems.length+' of '+owned.length+' units.');
+    if(unpriced>0) note.push(unpriced+' '+(unpriced===1?'unit has':'units have')+' no price entered and are left out, not counted as zero.');
+    note.push('The spread compares only the '+bothItems.length+' '+(bothItems.length===1?'unit that has':'units that have')+' both a price paid and a retail value.');
+  }
+  $('ledgerNote').textContent=note.join(' ');
+}
+
+function renderCare(){
+  var due=items.filter(isDue).sort(function(a,b){ return countWearsSinceWash(b)-countWearsSinceWash(a); });
+  $('careCount').textContent=due.length;
+  $('careLabel').textContent = due.length===1 ? 'unit is due for a wash' : 'units are due for a wash';
+  var list=$('careList'); list.innerHTML='';
+  var empty=$('careEmpty');
+  if(!items.length){
+    empty.textContent='Log a wear each time you put a unit on and this will tell you what needs washing.';
+    return;
+  }
+  if(!due.length){
+    empty.textContent='Everything is clean. Wash reminders start once a unit passes its wear count.';
+    return;
+  }
+  empty.textContent='';
+  due.slice(0,20).forEach(function(w){
+    var b=el('button','care-item', displayName(w)+' \u00b7 '+dueReason(w));
+    b.onclick=function(){ openDetail(w.id); };
+    list.appendChild(b);
+  });
+}
+
+function renderChipGroup(container, g){
+  var counts=valuesFor(g.key);
+  var keys=Object.keys(counts);
+  if(!keys.length) return;
+  keys.sort(function(a,b){ return counts[b]-counts[a] || a.localeCompare(b); });
+  var row=el('div','chiprow');
+  row.appendChild(el('span','grouplabel', g.label));
+  keys.forEach(function(v){
+    var on=(filters[g.key]||[]).indexOf(v)>-1;
+    var b=el('button','chip'+(on?' on':''));
+    b.appendChild(document.createTextNode(v));
+    var n=el('span','n', String(counts[v])); b.appendChild(n);
+    b.onclick=function(){
+      filters[g.key]=filters[g.key]||[];
+      var i=filters[g.key].indexOf(v);
+      if(i>-1) filters[g.key].splice(i,1); else filters[g.key].push(v);
+      renderChips(); renderGrid();
+    };
+    row.appendChild(b);
+  });
+  container.appendChild(row);
+}
+function renderChips(){
+  var c=$('chips'); c.innerHTML='';
+  CHIP_GROUPS_MAIN.forEach(function(g){ renderChipGroup(c,g); });
+  if(moreOpen) CHIP_GROUPS_MORE.forEach(function(g){ renderChipGroup(c,g); });
+  $('moreBtn').textContent = moreOpen ? 'Fewer filters' : 'More filters';
+  var n=activeFilterCount();
+  $('filterBanner').classList.toggle('show', n>0);
+  $('filterBannerText').textContent = n===1 ? '1 filter on' : n+' filters on';
+}
+
+function renderGrid(){
+  var g=$('grid'); g.innerHTML='';
+  var list=visibleItems();
+  $('gridCount').textContent = items.length ? (list.length===items.length ? list.length+' units' : list.length+' of '+items.length+' units') : '';
+  $('photoToggle').textContent = photoView==='unit' ? 'Showing: unit photo' : 'Showing: worn photo';
+
+  var es=$('emptyState'); es.innerHTML='';
+  if(!items.length){
+    var e=el('div','empty');
+    e.appendChild(el('h3',null,'Your closet is empty'));
+    e.appendChild(el('p',null,'Add your first wig with the button at the bottom of the screen. The only thing you have to fill in is a name. Everything else can wait.'));
+    var hb=el('button','btn','Read the getting started guide'); hb.onclick=function(){ openHelp(); };
+    e.appendChild(hb);
+    es.appendChild(e);
+    return;
+  }
+  if(!list.length){
+    var e2=el('div','empty');
+    e2.appendChild(el('h3',null,'No units match'));
+    e2.appendChild(el('p',null,'Nothing in your closet matches the filters and search you have on right now.'));
+    var cb=el('button','btn','Clear the filters'); cb.onclick=function(){ filters={}; search=''; $('search').value=''; renderChips(); renderGrid(); };
+    e2.appendChild(cb);
+    es.appendChild(e2);
+    return;
+  }
+
+  list.forEach(function(w){
+    var t=el('div','tile');
+    t.setAttribute('data-id', w.id);
+    var src = photoView==='unit' ? (w.photoUnit||w.photoWorn) : (w.photoWorn||w.photoUnit);
+    if(src){
+      var im=el('img','ph'); im.src=src; im.alt=displayName(w); im.loading='lazy';
+      t.appendChild(im);
+    } else {
+      t.appendChild(el('div','noph','No photo yet'));
+    }
+    var m=el('div','meta');
+    m.appendChild(el('div','tname', displayName(w)));
+    var sub=tileSub(w); if(sub) m.appendChild(el('div','tsub', sub));
+    var pills=el('div','pills');
+    pills.appendChild(el('span','pill', (num(w.wears)||0)+' wears'));
+    if(isDue(w)) pills.appendChild(el('span','pill due','Wash'));
+    if(w.status && w.status!=='Owned') pills.appendChild(el('span','pill', w.status));
+    if(w.storage) pills.appendChild(el('span','pill', w.storage + (w.storageLabel?' '+w.storageLabel:'')));
+    m.appendChild(pills);
+    t.appendChild(m);
+
+    var wb=el('button','wearbtn','+');
+    wb.setAttribute('aria-label','Log a wear for '+displayName(w));
+    wb.onclick=function(ev){ ev.stopPropagation(); logWear(w.id); };
+    t.appendChild(wb);
+
+    var handle=el('div','arrangehandle');
+    t.appendChild(handle);
+
+    t.onclick=function(){ if(!arranging) openDetail(w.id); };
+    g.appendChild(t);
+  });
+
+  if(arranging) wireDrag();
+}
+
+/* ---------- drag to arrange ---------- */
+function wireDrag(){
+  var g=$('grid'), dragEl=null;
+  g.querySelectorAll('.tile').forEach(function(t){
+    t.onpointerdown=function(e){
+      if(!arranging) return;
+      dragEl=t; t.classList.add('dragging'); t.setPointerCapture(e.pointerId);
+    };
+    t.onpointermove=function(e){
+      if(!dragEl||dragEl!==t) return;
+      var over=document.elementFromPoint(e.clientX, e.clientY);
+      if(!over) return;
+      var tgt=over.closest('.tile');
+      if(tgt && tgt!==dragEl && tgt.parentNode===g){
+        var tiles=Array.prototype.slice.call(g.children);
+        if(tiles.indexOf(tgt) < tiles.indexOf(dragEl)) g.insertBefore(dragEl, tgt);
+        else g.insertBefore(dragEl, tgt.nextSibling);
+      }
+    };
+    t.onpointerup=function(e){
+      if(!dragEl) return;
+      dragEl.classList.remove('dragging'); dragEl=null;
+      persistOrder();
+    };
+    t.onpointercancel=function(){ if(dragEl){ dragEl.classList.remove('dragging'); dragEl=null; } };
+  });
+}
+function persistOrder(){
+  var ids=Array.prototype.slice.call($('grid').children).map(function(t){ return t.getAttribute('data-id'); });
+  var chain=Promise.resolve();
+  ids.forEach(function(id, i){
+    var w=items.filter(function(x){ return x.id===id; })[0];
+    if(w && w.order!==i+1){ w.order=i+1; chain=chain.then(function(){ return Store.put('items', w); }); }
+  });
+  chain.then(function(){ renderLedger(); });
+}
+
+/* =====================================================================
+   wear and wash actions
+   ===================================================================== */
+function logWear(id){
+  var w=items.filter(function(x){ return x.id===id; })[0];
+  if(!w) return;
+  w.wears=(num(w.wears)||0)+1;
+  w.wearsSinceWash=(typeof w.wearsSinceWash==='number'?w.wearsSinceWash:0)+1;
+  w.lastWorn=today();
+  w.updated=new Date().toISOString();
+  Store.put('items', w).then(function(){
+    bumpChange();
+    renderAll();
+    if(currentId===id) openDetail(id, true);
+    toast('Wear logged for '+displayName(w)+'. That is '+w.wearsSinceWash+' since the last wash.');
+  });
+}
+function markWashed(id){
+  var w=items.filter(function(x){ return x.id===id; })[0];
+  if(!w) return;
+  w.lastWashed=today();
+  w.wearsSinceWash=0;
+  w.updated=new Date().toISOString();
+  Store.put('items', w).then(function(){
+    bumpChange(); renderAll();
+    if(currentId===id) openDetail(id, true);
+    toast('Marked washed today.');
+  });
+}
+
+/* =====================================================================
+   detail panel
+   ===================================================================== */
+function row(dl, k, v){
+  if(v===''||v==null) return;
+  dl.appendChild(el('dt',null,k));
+  dl.appendChild(el('dd',null,String(v)));
+}
+function openDetail(id, keepOpen){
+  var w=items.filter(function(x){ return x.id===id; })[0];
+  if(!w) return;
+  currentId=id;
+  $('detailTitle').textContent=displayName(w);
+  var b=$('detailBody'); b.innerHTML='';
+
+  if(w.photoUnit || w.photoWorn){
+    var ph=el('div','detail-photos');
+    if(w.photoUnit){
+      var f1=document.createElement('figure');
+      var i1=document.createElement('img'); i1.src=w.photoUnit; i1.alt='The unit';
+      f1.appendChild(i1); f1.appendChild(el('figcaption',null,'The unit')); ph.appendChild(f1);
+    }
+    if(w.photoWorn){
+      var f2=document.createElement('figure');
+      var i2=document.createElement('img'); i2.src=w.photoWorn; i2.alt='Worn';
+      f2.appendChild(i2); f2.appendChild(el('figcaption',null,'Worn')); ph.appendChild(f2);
+    }
+    b.appendChild(ph);
+  }
+
+  /* care block sits above everything else */
+  var care=el('div','careblock');
+  var every=washEveryFor(w), since=countWearsSinceWash(w);
+  care.appendChild(el('div','big', isDue(w) ? 'Due for a wash: '+dueReason(w) : since+' of '+every+' wears since the last wash'));
+  var cdl=el('dl','dl');
+  row(cdl,'Total wears', num(w.wears)||0);
+  row(cdl,'Last worn', w.lastWorn||'never');
+  row(cdl,'Last washed', w.lastWashed||'never');
+  row(cdl,'Wash every', every+' wears');
+  care.appendChild(cdl);
+  var cbtns=el('div','btnrow');
+  var bw=el('button','btn primary','Log a wear'); bw.onclick=function(){ logWear(w.id); };
+  var bwash=el('button','btn','Mark washed today'); bwash.onclick=function(){ markWashed(w.id); };
+  cbtns.appendChild(bw); cbtns.appendChild(bwash);
+  care.appendChild(cbtns);
+  b.appendChild(care);
+
+  var pairBtn=el('button','btn wide primary','What works with this unit');
+  pairBtn.style.marginBottom='16px';
+  pairBtn.onclick=function(){ openPairing(w.id); };
+  b.appendChild(pairBtn);
+
+  function sec(title, pairs){
+    var any=pairs.some(function(p){ return p[1]!=='' && p[1]!=null; });
+    if(!any) return;
+    var s=el('div','section');
+    s.appendChild(el('h3',null,title));
+    var dl=el('dl','dl');
+    pairs.forEach(function(p){ row(dl,p[0],p[1]); });
+    s.appendChild(dl);
+    b.appendChild(s);
+  }
+
+  sec('Identity',[['Style',w.style],['Colourway',w.colorway],['Bought from',w.place],['Bought on',w.purchaseDate],['Status',w.status]]);
+  sec('Construction',[['Fibre',w.fiber],['Cap',w.cap],['Lace',w.lace],['Lace colour',w.laceColor],['Cap size',w.capSize],['Parting',w.parting],['Density',w.density?w.density+'%':''],['Length',w.length?w.length+' inches':''],['Texture',w.texture],['Combs',w.combs],['Worn as',w.wearMethod]]);
+  if((w.features||[]).length){
+    var fs=el('div','section'); fs.appendChild(el('h3',null,'Features'));
+    var tg=el('div','togglegrid');
+    w.features.forEach(function(f){ var x=el('button','on',f); x.disabled=true; tg.appendChild(x); });
+    fs.appendChild(tg); b.appendChild(fs);
+  }
+  sec('Colour',[['Family',w.colorFamily],['Tone',w.tone],['Code',w.colorCode]]);
+  sec('Storage',[['Kept in',w.storage],['Label',w.storageLabel]]);
+  sec('Money',[['Paid',num(w.pricePaid)!=null?money(num(w.pricePaid)):''],['Retail',num(w.retail)!=null?money(num(w.retail)):'']]);
+
+  if(w.ratings.some(function(r){ return r>0; })){
+    var rs=el('div','section'); rs.appendChild(el('h3',null,'Ratings'));
+    (settings.ratingNames||DEFAULT_SETTINGS.ratingNames).forEach(function(nm,i){
+      var line=el('div','ratingline');
+      line.appendChild(el('span','rname', nm));
+      var bar=el('div','ratingbar');
+      for(var k=1;k<=10;k++){ var t=el('i', k<=(w.ratings[i]||0)?'on':''); bar.appendChild(t); }
+      line.appendChild(bar);
+      line.appendChild(el('span','rname', String(w.ratings[i]||0)));
+      rs.appendChild(line);
+    });
+    b.appendChild(rs);
+  }
+
+  if(w.notes){ var ns=el('div','section'); ns.appendChild(el('h3',null,'Notes')); ns.appendChild(el('p',null,w.notes)); b.appendChild(ns); }
+  if(w.comments){ var cs=el('div','section'); cs.appendChild(el('h3',null,'My comments')); cs.appendChild(el('p',null,w.comments)); b.appendChild(cs); }
+
+  var acts=el('div','btnrow');
+  var cp=el('button','btn','Copy this wig');
+  cp.onclick=function(){ copyWig(w.id); };
+  var dl2=el('button','btn danger','Delete this wig');
+  dl2.onclick=function(){ deleteWig(w.id); };
+  acts.appendChild(cp); acts.appendChild(dl2);
+  b.appendChild(acts);
+
+  if(!keepOpen && stack[stack.length-1]!=='panel-detail') openPanel('panel-detail');
+}
+function copyWig(id){
+  var src=items.filter(function(x){ return x.id===id; })[0];
+  if(!src) return;
+  var w=JSON.parse(JSON.stringify(src));
+  w.id=uid();
+  w.name=displayName(src)+' copy';
+  w.wears=0; w.wearsSinceWash=0; w.lastWorn=''; w.lastWashed='';
+  w.order=items.reduce(function(a,b){ return Math.max(a,b.order||0); },0)+1;
+  w.created=new Date().toISOString(); w.updated=w.created;
+  items.push(w);
+  Store.put('items', w).then(function(){
+    bumpChange(); rebuildUserPresets(); renderAll();
+    openForm(w.id);
+    toast('Copied. Change the colourway and save.');
+  });
+}
+function deleteWig(id){
+  var w=items.filter(function(x){ return x.id===id; })[0];
+  if(!w) return;
+  if(!confirm('Delete '+displayName(w)+' from your closet?\n\nYou can undo this from the menu straight afterwards.')) return;
+  takeSnapshot('before deleting '+displayName(w)).then(function(){
+    return Store.del('items', id);
+  }).then(function(){
+    items=items.filter(function(x){ return x.id!==id; });
+    bumpChange(); rebuildUserPresets(); renderAll();
+    closeTop();
+    toast('Deleted. Undo is in the menu.');
+  });
+}
+
+/* =====================================================================
+   pairing engine
+   ===================================================================== */
+function evaluateProduct(p, w){
+  /* hard filters first */
+  if(p.needsHeatSafe){
+    if(!w.fiber) return {verdict:'unknown', text:'Add the fibre for this unit before you put any heat near it.'};
+    if(NO_HEAT.indexOf(w.fiber)>-1) return {verdict:'no', text:'This unit is '+w.fiber.toLowerCase()+'. Heat will melt it and the damage cannot be undone.'};
+    if(HEAT_SAFE.indexOf(w.fiber)===-1) return {verdict:'unknown', text:'I do not recognise the fibre on this unit, so I will not tell you it is safe to heat. Check with whoever you bought it from.'};
+  }
+  if(p.needsLace){
+    if(!w.cap) return {verdict:'unknown', text:'Add the cap construction before using anything that bonds to lace.'};
+    if(NO_LACE.indexOf(w.cap)>-1) return {verdict:'no', text:'A '+w.cap.toLowerCase()+' unit has no lace front to bond to.'};
+    if(LACE_CAPS.indexOf(w.cap)===-1) return {verdict:'unknown', text:'I cannot tell whether this cap has usable lace at the hairline.'};
+  }
+  if(p.fiberIn){
+    if(!w.fiber) return {verdict:'unknown', text:'Add the fibre and this will tell you whether it is the right wash for this unit.'};
+    if(p.fiberIn.indexOf(w.fiber)===-1) return {verdict:'no', text:'Made for a different fibre than the '+w.fiber.toLowerCase()+' on this unit.'};
+  }
+  var r=p.score(w);
+  return { verdict: r.s>=3 ? 'yes' : (r.s<=0 ? 'no' : 'maybe'), text:'', reasons:r.r, score:r.s };
+}
+function openPairing(id){
+  var w=items.filter(function(x){ return x.id===id; })[0];
+  if(!w) return;
+  $('pairTitle').textContent=displayName(w);
+  var b=$('pairBody'); b.innerHTML='';
+
+  var intro=el('div','section');
+  intro.appendChild(el('h3',null,'How this works'));
+  intro.appendChild(el('p',null,'Fibre and cap construction are checked first, because heat and adhesive are a physical yes or no. Everything after that is a judgement call based on density, lace, texture and how you wear this one. Where the answer depends on something you have not entered, it says so rather than guessing.'));
+  intro.style.fontWeight='600';
+  b.appendChild(intro);
+
+  var buckets={yes:[],maybe:[],unknown:[],no:[]};
+  PRODUCTS.forEach(function(p){
+    var r=evaluateProduct(p,w);
+    buckets[r.verdict].push({p:p,r:r});
+  });
+  buckets.yes.sort(function(a,b){ return (b.r.score||0)-(a.r.score||0); });
+  buckets.maybe.sort(function(a,b){ return (b.r.score||0)-(a.r.score||0); });
+
+  function block(title, arr, cls, tag){
+    if(!arr.length) return;
+    b.appendChild(el('h3','grouptitle', title));
+    arr.forEach(function(x){
+      var d=el('div','pair'+(cls?' '+cls:''));
+      if(tag) d.appendChild(el('span','tag'+(cls==='yes'?' good':''), tag));
+      d.appendChild(el('div','pname', x.p.name));
+      d.appendChild(el('div','pwhy', x.p.why));
+      if(x.r.reasons && x.r.reasons.length) d.appendChild(el('div','pwhy','For this unit: '+x.r.reasons.join('; ')+'.'));
+      if(x.r.text) d.appendChild(el('div','pwhy', x.r.text));
+      if(x.p.caution) d.appendChild(el('div','pwhy','Careful: '+x.p.caution));
+      b.appendChild(d);
+    });
+  }
+  block('Reach for these', buckets.yes, 'yes', 'Recommended');
+  block('Fine, but not the first thing you need', buckets.maybe, '', 'Optional');
+  block('Cannot tell yet', buckets.unknown, '', 'Missing information');
+  block('Not for this unit', buckets.no, '', 'Avoid');
+
+  openPanel('panel-pair');
+}
+
+/* =====================================================================
+   the form
+   ===================================================================== */
+function field(parent, key, label, opts){
+  opts=opts||{};
+  var f=el('div','f');
+  var lab=el('label',null,label); lab.setAttribute('for','fld-'+key); f.appendChild(lab);
+  var input;
+  if(opts.textarea){
+    input=document.createElement('textarea');
+  } else {
+    input=document.createElement('input');
+    input.type=opts.type||'text';
+    if(opts.type==='number'){ input.inputMode='decimal'; }
+  }
+  input.id='fld-'+key;
+  input.value = formDraft[key]==null ? '' : formDraft[key];
+  if(opts.placeholder) input.placeholder=opts.placeholder;
+  if(opts.list){
+    var listId='list-'+key;
+    input.setAttribute('list', listId);
+    var dl=document.createElement('datalist'); dl.id=listId;
+    suggestionsFor(opts.list).forEach(function(v){ var o=document.createElement('option'); o.value=v; dl.appendChild(o); });
+    f.appendChild(dl);
+  }
+  input.oninput=function(){ formDraft[key]=input.value; };
+  f.appendChild(input);
+  if(opts.hint) f.appendChild(el('div','hint', opts.hint));
+  parent.appendChild(f);
+  return input;
+}
+function openForm(id){
+  editingId = id || null;
+  var existing = id ? items.filter(function(x){ return x.id===id; })[0] : null;
+  formDraft = existing ? JSON.parse(JSON.stringify(existing)) : blankItem();
+  if(!formDraft.ratings) formDraft.ratings=[0,0,0,0];
+  if(!formDraft.features) formDraft.features=[];
+  $('formTitle').textContent = existing ? 'Edit wig' : 'Add a wig';
+
+  var b=$('formBody'); b.innerHTML='';
+
+  /* identity */
+  var s1=el('div','section'); s1.appendChild(el('h3',null,'What is it'));
+  field(s1,'name','Name',{placeholder:'Christina', hint:'The only thing you have to fill in. Everything else can wait until later.'});
+  var two1=el('div','two'); s1.appendChild(two1);
+  field(two1,'style','Style',{list:'style', placeholder:'Type or pick'});
+  field(two1,'colorway','Colourway',{list:'colorway', placeholder:'Type or pick'});
+  var two2=el('div','two'); s1.appendChild(two2);
+  field(two2,'place','Bought from',{list:'place'});
+  field(two2,'status','Status',{list:'status'});
+  b.appendChild(s1);
+
+  /* photos */
+  var s2=el('div','section'); s2.appendChild(el('h3',null,'Photos'));
+  var pr=el('div','photorow');
+  [['photoUnit','The unit', 60000],['photoWorn','Worn by you', 45000]].forEach(function(cfg){
+    var slot=el('div','photoslot');
+    slot.appendChild(el('div','ttl', cfg[1]));
+    var img=document.createElement('img');
+    if(formDraft[cfg[0]]) img.src=formDraft[cfg[0]]; else img.style.display='none';
+    slot.appendChild(img);
+    var inp=document.createElement('input'); inp.type='file'; inp.accept='image/*'; inp.style.display='none';
+    var pick=el('button','smallbtn', formDraft[cfg[0]]?'Change':'Add photo');
+    pick.onclick=function(){ inp.click(); };
+    var rm=el('button','smallbtn','Remove'); rm.style.marginLeft='6px';
+    rm.style.display = formDraft[cfg[0]] ? '' : 'none';
+    rm.onclick=function(){ formDraft[cfg[0]]=''; img.style.display='none'; pick.textContent='Add photo'; rm.style.display='none'; };
+    inp.onchange=function(){
+      if(!inp.files||!inp.files[0]) return;
+      pick.textContent='Working...';
+      readAndResize(inp.files[0], cfg[2], 900).then(function(d){
+        formDraft[cfg[0]]=d; img.src=d; img.style.display='';
+        pick.textContent='Change'; rm.style.display='';
+      }).catch(function(err){ pick.textContent='Add photo'; toast(err.message); });
+    };
+    slot.appendChild(inp);
+    var brow=el('div'); brow.appendChild(pick); brow.appendChild(rm);
+    slot.appendChild(brow);
+    pr.appendChild(slot);
+  });
+  s2.appendChild(pr);
+  s2.appendChild(el('div','hint','Photos are shrunk on this phone before they are saved, so they stay small enough to back up.'));
+  b.appendChild(s2);
+
+  /* construction */
+  var s3=el('div','section'); s3.appendChild(el('h3',null,'Construction'));
+  var t3=el('div','two'); s3.appendChild(t3);
+  field(t3,'fiber','Fibre',{list:'fiber', hint:'Decides whether heat is safe.'});
+  field(t3,'cap','Cap construction',{list:'cap', hint:'Decides whether adhesive is possible.'});
+  var t4=el('div','two'); s3.appendChild(t4);
+  field(t4,'lace','Lace type',{list:'lace'});
+  field(t4,'laceColor','Lace colour',{list:'laceColor'});
+  var t5=el('div','two'); s3.appendChild(t5);
+  field(t5,'capSize','Cap size',{list:'capSize'});
+  field(t5,'parting','Parting',{list:'parting'});
+  var t6=el('div','three'); s3.appendChild(t6);
+  field(t6,'density','Density %',{type:'number'});
+  field(t6,'length','Length in inches',{type:'number'});
+  field(t6,'combs','Combs',{type:'number'});
+  var t7=el('div','two'); s3.appendChild(t7);
+  field(t7,'texture','Texture',{list:'texture'});
+  field(t7,'wearMethod','How you wear it',{list:'wearMethod'});
+  b.appendChild(s3);
+
+  /* features */
+  var s4=el('div','section'); s4.appendChild(el('h3',null,'Features'));
+  var tg=el('div','togglegrid');
+  var allFeatures = PRESETS.features.concat(formDraft.features.filter(function(f){ return PRESETS.features.indexOf(f)===-1; }));
+  allFeatures.forEach(function(f){
+    var on=formDraft.features.indexOf(f)>-1;
+    var bt=el('button', on?'on':'', f);
+    bt.onclick=function(){
+      var i=formDraft.features.indexOf(f);
+      if(i>-1){ formDraft.features.splice(i,1); bt.className=''; }
+      else { formDraft.features.push(f); bt.className='on'; }
+    };
+    tg.appendChild(bt);
+  });
+  s4.appendChild(tg);
+  b.appendChild(s4);
+
+  /* colour */
+  var s5=el('div','section'); s5.appendChild(el('h3',null,'Colour'));
+  var t8=el('div','three'); s5.appendChild(t8);
+  field(t8,'colorFamily','Family',{list:'colorFamily'});
+  field(t8,'tone','Tone',{list:'tone'});
+  field(t8,'colorCode','Code',{});
+  b.appendChild(s5);
+
+  /* storage */
+  var s6=el('div','section'); s6.appendChild(el('h3',null,'Where it lives'));
+  var t9=el('div','two'); s6.appendChild(t9);
+  field(t9,'storage','Kept in',{list:'storage'});
+  field(t9,'storageLabel','Which one',{placeholder:'Head 3, bin B'});
+  b.appendChild(s6);
+
+  /* wear and wash */
+  var s7=el('div','section'); s7.appendChild(el('h3',null,'Wear and wash'));
+  var t10=el('div','three'); s7.appendChild(t10);
+  field(t10,'wears','Total wears',{type:'number'});
+  field(t10,'washEvery','Wash every',{type:'number', placeholder:String(settings.washEveryDefault||8)});
+  field(t10,'purchaseDate','Bought on',{type:'date'});
+  var t11=el('div','two'); s7.appendChild(t11);
+  field(t11,'lastWorn','Last worn',{type:'date'});
+  field(t11,'lastWashed','Last washed',{type:'date'});
+  b.appendChild(s7);
+
+  /* money */
+  var s8=el('div','section'); s8.appendChild(el('h3',null,'Money'));
+  var t12=el('div','two'); s8.appendChild(t12);
+  field(t12,'pricePaid','Price paid',{type:'number'});
+  field(t12,'retail','Retail value',{type:'number'});
+  s8.appendChild(el('div','hint','Leave these blank if you do not know. Blank is left out of the totals, not counted as zero.'));
+  b.appendChild(s8);
+
+  /* ratings */
+  var s9=el('div','section'); s9.appendChild(el('h3',null,'Ratings, 1 to 10'));
+  (settings.ratingNames||DEFAULT_SETTINGS.ratingNames).forEach(function(nm,i){
+    var f=el('div','f');
+    f.appendChild(el('label',null,nm));
+    var r=el('div','rate');
+    for(var k=1;k<=10;k++){
+      (function(k){
+        var bt=el('button', formDraft.ratings[i]===k?'on':'', String(k));
+        bt.onclick=function(){
+          formDraft.ratings[i] = (formDraft.ratings[i]===k) ? 0 : k;
+          Array.prototype.forEach.call(r.children, function(c,idx){ c.className = (idx+1===formDraft.ratings[i])?'on':''; });
+        };
+        r.appendChild(bt);
+      })(k);
+    }
+    f.appendChild(r);
+    s9.appendChild(f);
+  });
+  b.appendChild(s9);
+
+  /* text */
+  var s10=el('div','section'); s10.appendChild(el('h3',null,'Words'));
+  field(s10,'notes','Notes',{textarea:true, hint:'What it is. Colour, cut, how it is built. Facts you would tell anyone.'});
+  field(s10,'comments','My comments',{textarea:true, hint:'What you think. Whether it suits you, whether you would buy it again.'});
+  b.appendChild(s10);
+
+  var row2=el('div','btnrow');
+  var save=el('button','btn primary','Save this wig'); save.onclick=saveForm;
+  var cancel=el('button','btn','Cancel'); cancel.onclick=function(){ closeTop(); };
+  row2.appendChild(save); row2.appendChild(cancel);
+  b.appendChild(row2);
+
+  openPanel('panel-form');
+}
+function saveForm(){
+  if(!formDraft.name || !formDraft.name.trim()){
+    if(formDraft.style || formDraft.colorway){
+      formDraft.name = (formDraft.style+' '+(formDraft.colorway?'('+formDraft.colorway+')':'')).trim();
+    } else {
+      toast('Give it a name first. Anything you will recognise.');
+      var n=$('fld-name'); if(n){ n.focus(); if(n.scrollIntoView) n.scrollIntoView({block:'center'}); }
+      return;
+    }
+  }
+  formDraft.updated=new Date().toISOString();
+  if(typeof formDraft.wearsSinceWash!=='number') formDraft.wearsSinceWash=num(formDraft.wears)||0;
+  var existing = editingId ? items.filter(function(x){ return x.id===editingId; })[0] : null;
+  if(existing){
+    Object.assign(existing, formDraft);
+  } else {
+    formDraft.order = items.reduce(function(a,b){ return Math.max(a,b.order||0); },0)+1;
+    items.push(formDraft);
+  }
+  var saveTarget = existing || formDraft;
+  var savedId=saveTarget.id;
+  Store.put('items', saveTarget).then(function(){
+    bumpChange(); rebuildUserPresets(); renderAll();
+    afterClose['panel-form']=function(){
+      if(stack[stack.length-1]==='panel-detail'){ currentId=savedId; openDetail(savedId, true); }
+    };
+    closeTop();
+    toast(existing ? 'Saved.' : 'Added to your closet.');
+    if(!existing && items.length===1){
+      setTimeout(function(){ toast('Tip: the plus on a tile logs a wear. That is what drives the wash reminders.'); }, 2700);
+    }
+  });
+}
+$('formSaveTop').onclick=saveForm;
+$('detailEdit').onclick=function(){ if(currentId) openForm(currentId); };
+
+/* =====================================================================
+   menu, backup, settings, help
+   ===================================================================== */
+function menuItem(list, title, sub, fn){
+  var b=document.createElement('button');
+  b.appendChild(document.createTextNode(title));
+  if(sub) b.appendChild(el('span','sub', sub));
+  b.onclick=fn;
+  list.appendChild(b);
+}
+function openMenu(){
+  var b=$('menuBody'); b.innerHTML='';
+
+  b.appendChild(el('h3','grouptitle','Back up and restore'));
+  var l1=el('div','menulist');
+  menuItem(l1,'Send a backup to Drive','Opens your share sheet. Save it to Drive, email it to yourself, whatever you will find again. Currently '+prettyBytes(backupBytes())+'.', shareBackup);
+  menuItem(l1,'Save a backup on this phone','Downloads the same file straight to this device.', saveBackupLocal);
+  menuItem(l1,'Restore from a backup','Replaces everything in this closet with a backup file.', function(){ $('filePick').click(); });
+  b.appendChild(l1);
+
+  b.appendChild(el('h3','grouptitle','Undo'));
+  var l2=el('div','menulist');
+  listSnapshots().then(function(snaps){
+    if(!snaps.length){
+      menuItem(l2,'Nothing to undo','Undo points are made automatically before anything that would wipe or replace your closet.', function(){});
+    } else {
+      snaps.forEach(function(s){
+        var when=new Date(s.at);
+        menuItem(l2,'Undo: '+s.label, when.toLocaleString()+', '+s.items.length+' wigs', function(){
+          if(confirm('Put your closet back to how it was '+s.label+'?')) undoTo(s.k).then(function(){ closeTop(); });
+        });
+      });
+    }
+  });
+  b.appendChild(l2);
+
+  b.appendChild(el('h3','grouptitle','Spreadsheets'));
+  var l3=el('div','menulist');
+  menuItem(l3,'Import a spreadsheet','Adds wigs from a CSV file. Nothing is replaced.', function(){ $('csvPick').click(); });
+  menuItem(l3,'Export a spreadsheet','Downloads your closet as a CSV. Photos are not included.', exportCsv);
+  menuItem(l3,'Copy the AI prompt','Copies instructions you can paste into any AI along with your order emails or screenshots, to get a spreadsheet you can import here.', copyAiPrompt);
+  b.appendChild(l3);
+
+  b.appendChild(el('h3','grouptitle','This app'));
+  var l4=el('div','menulist');
+  if(!isStandalone()){
+    menuItem(l4,'Install this app', isIos()
+      ? 'Add it to your home screen from Safari so it opens on its own, with or without a signal.'
+      : 'Put it on your home screen so it opens on its own, with or without a signal.', doInstall);
+  }
+  menuItem(l4,'Getting started','How the whole thing works, in plain words.', openHelp);
+  menuItem(l4,'Settings','Your closet name, ratings and wash reminders.', openSettings);
+  menuItem(l4,'Print this closet','Prints the tiles as they are filtered right now, always in light mode.', function(){ afterClose['panel-menu']=function(){ window.print(); }; closeTop(); });
+  b.appendChild(l4);
+
+  openPanel('panel-menu');
+}
+
+function copyAiPrompt(){
+  var prompt =
+'I am filling in a wig closet tracker. Read the photos, order confirmations or notes I give you and return ONLY a CSV file, nothing else, no explanation.\n\n'+
+'Use exactly these column headers in this order:\n'+
+CSV_HEADERS.join(',') + '\n\n'+
+'Rules:\n'+
+'- One row per wig.\n'+
+'- Name is required. If you only know a style and a colour, put them together like Christina (Pink Prosecco).\n'+
+'- Leave a cell completely empty if you do not know it. Never guess a price and never write 0 for something you do not know.\n'+
+'- Fibre must be one of: '+PRESETS.fiber.join(', ')+'.\n'+
+'- Cap construction must be one of: '+PRESETS.cap.join(', ')+'.\n'+
+'- Lace type must be one of: '+PRESETS.lace.join(', ')+'.\n'+
+'- Cap size must be one of: '+PRESETS.capSize.join(', ')+'.\n'+
+'- Texture must be one of: '+PRESETS.texture.join(', ')+'.\n'+
+'- Density is a number only, no percent sign. Length is a number of inches only.\n'+
+'- Features is a single cell with items separated by semicolons, chosen from: '+PRESETS.features.join('; ')+'.\n'+
+'- Dates are YYYY-MM-DD.\n'+
+'- Notes should be objective description only. Put opinions in My comments.\n'+
+'- Ratings are 1 to 10 or empty. Do not invent ratings.\n';
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(prompt).then(function(){
+      toast('Prompt copied. Paste it into any AI along with your photos or order emails.');
+    }).catch(function(){ fallbackCopy(prompt); });
+  } else fallbackCopy(prompt);
+}
+function fallbackCopy(text){
+  var ta=document.createElement('textarea'); ta.value=text;
+  ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); toast('Prompt copied.'); }
+  catch(e){ toast('Could not copy automatically. Long press to select it instead.'); }
+  document.body.removeChild(ta);
+}
+
+function openSettings(){
+  var b=$('settingsBody'); b.innerHTML='';
+  var s=el('div','section'); s.appendChild(el('h3',null,'Your closet'));
+  var f=el('div','f');
+  f.appendChild(el('label',null,'Whose closet is this'));
+  var inp=document.createElement('input'); inp.type='text'; inp.value=settings.closetName||''; inp.placeholder='Lisa';
+  inp.oninput=function(){
+    settings.closetName=inp.value.trim();
+    $('closetName').textContent = settings.closetName ? settings.closetName+"'s Wig Closet" : 'The Wig Closet';
+    Store.put('meta', settings);
+  };
+  f.appendChild(inp);
+  f.appendChild(el('div','hint','Put Lisa here and the top of the app says Lisa\u2019s Wig Closet. Leave it empty and it just says The Wig Closet.'));
+  s.appendChild(f);
+
+  var f2=el('div','f');
+  f2.appendChild(el('label',null,'Wash reminder after this many wears'));
+  var inp2=document.createElement('input'); inp2.type='number'; inp2.inputMode='numeric';
+  inp2.value=settings.washEveryDefault||8;
+  inp2.oninput=function(){ settings.washEveryDefault=num(inp2.value)||8; Store.put('meta', settings).then(renderAll); };
+  f2.appendChild(inp2);
+  f2.appendChild(el('div','hint','This is the default. Any single unit can override it on its own form.'));
+  s.appendChild(f2);
+  b.appendChild(s);
+
+  var s2=el('div','section'); s2.appendChild(el('h3',null,'What the four ratings are called'));
+  (settings.ratingNames||DEFAULT_SETTINGS.ratingNames).forEach(function(nm,i){
+    var f3=el('div','f');
+    f3.appendChild(el('label',null,'Rating '+(i+1)));
+    var ip=document.createElement('input'); ip.type='text'; ip.value=nm;
+    ip.oninput=function(){ settings.ratingNames[i]=ip.value; Store.put('meta', settings); };
+    f3.appendChild(ip);
+    s2.appendChild(f3);
+  });
+  b.appendChild(s2);
+
+  var s3=el('div','section'); s3.appendChild(el('h3',null,'Where your closet is kept'));
+  var p=el('p',null,'This closet is saved in this browser on this device, using '+(Store.mode()==='idb'?'its built in database':'simple browser storage')+'. It is not on a server. Nobody at any company can see it. If you clear this browser\u2019s data, uninstall the app, or lose the phone, it is gone unless you have a backup file.');
+  p.style.fontWeight='600';
+  s3.appendChild(p);
+  s3.appendChild(el('p','hint','Current backup size: '+prettyBytes(backupBytes())+'.'));
+  var db=el('button','btn danger wide','Erase this closet completely');
+  db.style.marginTop='10px';
+  db.onclick=function(){
+    if(!confirm('This erases every wig in this closet on this device.\n\nMake sure you have a backup first. Carry on?')) return;
+    if(!confirm('Last check. Erase all '+items.length+' wigs?')) return;
+    takeSnapshot('before erasing the whole closet').then(function(){
+      return Store.clear('items');
+    }).then(function(){
+      items=[]; rebuildUserPresets(); renderAll(); closeTop();
+      toast('Closet erased. Undo is still in the menu for now.');
+    });
+  };
+  s3.appendChild(db);
+  b.appendChild(s3);
+
+  openPanel('panel-settings');
+}
+
+function openHelp(){
+  var b=$('helpBody');
+  b.innerHTML =
+  '<p><strong>This closet lives on your phone and nowhere else.</strong> There is no account and no sign in. Nothing you type here is sent anywhere. That also means nobody is keeping a copy for you, so backups are on you. It takes about ten seconds and the app will remind you.</p>'+
+
+  '<h4>Adding your first wig</h4>'+
+  '<p>Tap Add a wig. The only thing you have to fill in is a name. Everything else is optional and you can come back to it whenever you like. If you own several colourways of the same style, add one properly, then open it and tap Copy this wig. That saves you filling the same twenty fields over and over.</p>'+
+
+  '<h4>The fast way to add a lot of wigs at once</h4>'+
+  '<p>If you already own twenty or forty units, do not type them one at a time. Do this instead:</p>'+
+  '<ul>'+
+  '<li>Open the menu and tap Copy the AI prompt.</li>'+
+  '<li>Open any AI chat app, paste the prompt, and attach your order confirmation emails, screenshots or a photo of your handwritten list.</li>'+
+  '<li>It gives you back a spreadsheet. Save it as a CSV file.</li>'+
+  '<li>Come back here, open the menu, tap Import a spreadsheet, and pick that file.</li>'+
+  '</ul>'+
+  '<p>Importing adds to your closet. It does not replace anything.</p>'+
+
+  '<h4>What AI gets wrong</h4>'+
+  '<p>It is good at names, colours and lengths. It is unreliable on anything it cannot see. It will confidently invent a density, a cap size or a price if you let it, and a made up price quietly poisons your totals for good. The prompt tells it to leave cells empty when it does not know, but check the spreadsheet before you import it, especially the price columns. An empty cell is honest. A guessed number is not.</p>'+
+
+  '<h4>Notes against My comments</h4>'+
+  '<p>Notes are for what the unit is: the colour, the cut, how it is built, the things that would be true no matter who owned it. My comments are for what you think: whether it suits you, whether the lace is worth the fuss, whether you would buy it again. Keeping them apart means you can hand someone your notes without handing over your opinions.</p>'+
+
+  '<h4>Wears and washes</h4>'+
+  '<p>The plus button on each tile logs a wear. Once a unit passes its wear count it appears in the pink box at the top of the screen. Mark it washed and the count starts again. If you never log wears the reminders simply stay quiet, so this part is entirely optional, but it is the one thing this app does that a spreadsheet cannot.</p>'+
+
+  '<h4>What works with this unit</h4>'+
+  '<p>Open any wig and tap that button and you get products sorted into what to reach for, what is optional, and what to avoid. It checks fibre and cap construction first, because heat and adhesive are physical facts, not preferences. If you have not entered the fibre it will say it cannot tell rather than guess. Take that seriously. Heat on the wrong fibre is not a mistake you can undo.</p>'+
+
+  '<h4>Why the totals look fussy</h4>'+
+  '<p>The line under the totals says exactly how many units each number covers. A unit with no price is left out rather than counted as zero, because counting it as zero would quietly drag your average down. If the spread compared a different set of units than the totals, it would be a meaningless number, so the app tells you which set it used.</p>'+
+
+  '<h4>Backing up</h4>'+
+  '<p>Menu, then Send a backup to Drive. Your phone opens its usual share sheet and you pick where it goes. The file is a plain text file, because Chrome on Android refuses to share the more obvious file type. Do not rename it. To bring it back, use Restore from a backup on any phone, and the whole closet comes back including photos.</p>'+
+  '<p>If you restore or delete something by accident, the menu holds the last three undo points. They are made automatically before anything destructive.</p>'+
+
+  '<h4>Installing it as an app</h4>'+
+  '<p>You do not have to install anything. The web address works on its own and the app will never ask you to install it. If you would rather have it on your home screen, open the menu and tap Install this app. On Android that puts it there in one tap. On an iPhone it will show you the two taps to do it yourself, because Safari does not let a website install itself.</p>'+
+  '<p>You do not have to install it. The web address works exactly the same. Installing just means it opens on its own instead of inside a browser tab, and it keeps working with no signal. Your closet does not move when you install it, it is the same storage either way, so nothing is lost and nothing is duplicated.</p>'+
+
+  '<h4>If you use more than one phone</h4>'+
+  '<p>There is no sync. Two phones means two separate closets. Move a closet across by backing up on one and restoring on the other, and remember the restore replaces whatever was on the second phone.</p>'+
+
+  '<h4>About this app</h4>'+
+  '<p>This app is independent and is not affiliated with, endorsed by or connected to any wig shop or brand. Shop and product names appear only as suggestions to save you typing, and anything you type yourself is added to your own list.</p>';
+  openPanel('panel-help');
+}
+
+/* =====================================================================
+   first run
+   ===================================================================== */
+function openWelcome(){
+  var b=$('welcomeBody'); b.innerHTML='';
+  var h=el('h2','serif','The Wig Closet'); h.style.fontSize='34px'; h.style.marginBottom='10px';
+  b.appendChild(h);
+  var p=el('p',null,'A private list of every unit you own, what it is made of, where it lives, and when it last saw water.');
+  p.style.fontWeight='600'; p.style.fontSize='17px';
+  b.appendChild(p);
+
+  var s=el('div','section'); s.style.marginTop='20px';
+  var f=el('div','f');
+  f.appendChild(el('label',null,'Whose closet is this?'));
+  var inp=document.createElement('input'); inp.type='text'; inp.placeholder='Lisa'; inp.autocomplete='off';
+  f.appendChild(inp);
+  f.appendChild(el('div','hint','Just for the top of the screen. You can skip this or change it later.'));
+  s.appendChild(f);
+  b.appendChild(s);
+
+  var note=el('div','section');
+  note.appendChild(el('h3',null,'Before you start'));
+  var np=el('p',null,'Everything you add stays in this browser on this phone. There is no account, no sign in, and nothing is sent anywhere. Nobody else can see your closet, and nobody is keeping a copy of it for you, so back it up now and then. The app will nudge you.');
+  np.style.fontWeight='600';
+  note.appendChild(np);
+  b.appendChild(note);
+
+  var row3=el('div','btnrow');
+  var go=el('button','btn primary','Add my first wig');
+  go.onclick=function(){ finishWelcome(inp.value); setTimeout(function(){ openForm(null); }, 60); };
+  var skip=el('button','btn','Look around first');
+  skip.onclick=function(){ finishWelcome(inp.value); };
+  var helpb=el('button','btn','How does this work?');
+  helpb.onclick=function(){ finishWelcome(inp.value); setTimeout(openHelp, 60); };
+  row3.appendChild(go); row3.appendChild(skip); row3.appendChild(helpb);
+  b.appendChild(row3);
+
+
+  /* deliberately not on the history stack: it is the first screen, so the back
+     button here should leave the site rather than strand someone on a blank grid */
+  $('panel-welcome').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function finishWelcome(name){
+  settings.closetName=(name||'').trim();
+  settings.seenWelcome=true;
+  Store.put('meta', settings).then(function(){ renderAll(); });
+  $('panel-welcome').classList.remove('open');
+  if(!stack.length) document.body.style.overflow='';
+}
+
+/* =====================================================================
+   wiring
+   ===================================================================== */
+$('themeBtn').onclick=function(){
+  settings.theme = (settings.theme==='dark') ? 'light' : 'dark';
+  applyTheme(settings.theme);
+  Store.put('meta', settings);
+};
+$('menuBtn').onclick=openMenu;
+$('addFab').onclick=function(){ openForm(null); };
+$('reloadBtn').onclick=function(){ location.reload(true); };
+$('nudgeBackup').onclick=function(){ shareBackup(); };
+$('nudgeLater').onclick=function(){ window._nudgeDismissed=true; $('nudgeBar').classList.remove('show'); };
+$('moreBtn').onclick=function(){ moreOpen=!moreOpen; renderChips(); };
+$('clearFilters').onclick=function(){ filters={}; renderChips(); renderGrid(); };
+$('photoToggle').onclick=function(){ photoView = photoView==='unit' ? 'worn' : 'unit'; renderGrid(); };
+$('arrangeBtn').onclick=function(){
+  arranging=!arranging;
+  document.body.classList.toggle('arranging', arranging);
+  $('arrangeBtn').classList.toggle('on', arranging);
+  $('arrangeBtn').textContent = arranging ? 'Done arranging' : 'Arrange';
+  renderGrid();
+  if(arranging) toast('Drag tiles to reorder. Tap Done when you are finished.');
+};
+$('search').oninput=function(){ search=this.value.trim(); renderGrid(); };
+$('filePick').onchange=function(){
+  var f=this.files && this.files[0]; if(!f) return;
+  var fr=new FileReader();
+  fr.onload=function(){ restoreFromText(fr.result); };
+  fr.readAsText(f);
+  this.value='';
+};
+$('csvPick').onchange=function(){
+  var f=this.files && this.files[0]; if(!f) return;
+  var fr=new FileReader();
+  fr.onload=function(){ importCsvText(fr.result); };
+  fr.readAsText(f);
+  this.value='';
+};
+
+/* =====================================================================
+   boot
+   ===================================================================== */
+(function boot(){
+  /* the footer stamp and the constant must agree */
+  var footerStamp=($('buildStamp').textContent.match(/\d{10}/)||[])[0];
+  if(footerStamp!==BUILD) console.warn('Build stamp mismatch between the footer and the script.');
+
+  Store.open().then(function(){
+    return Promise.all([Store.all('items'), Store.all('meta')]);
+  }).then(function(res){
+    items=res[0]||[];
+    var meta=(res[1]||[]).filter(function(m){ return m.k==='settings'; })[0];
+    settings=Object.assign({}, DEFAULT_SETTINGS, meta||{});
+    settings.k='settings';
+    if(!Array.isArray(settings.ratingNames) || settings.ratingNames.length!==4) settings.ratingNames=DEFAULT_SETTINGS.ratingNames.slice();
+    items.forEach(function(w,i){
+      if(!w.ratings) w.ratings=[0,0,0,0];
+      if(!w.features) w.features=[];
+      if(!w.order) w.order=i+1;
+      if(typeof w.wearsSinceWash!=='number') w.wearsSinceWash=num(w.wears)||0;
+    });
+    applyTheme(settings.theme||'light');
+    rebuildUserPresets();
+    renderAll();
+    if(!settings.seenWelcome) openWelcome();
+    checkForUpdate();
+  }).catch(function(e){
+    console.error(e);
+    toast('This browser would not let the app open its storage. Try a different browser.');
+  });
+})();
+</script>
+</body>
+</html>
