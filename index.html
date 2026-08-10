@@ -325,7 +325,7 @@ footer .priv{font-weight:600;margin-top:6px}
 </button>
 
 <footer>
-  <div class="stamp" id="buildStamp">BUILD 0809261810 &middot; CORE 1.0.0</div>
+  <div class="stamp" id="buildStamp">BUILD 0809261944 &middot; CORE 1.0.0</div>
   <div>Designed by Harold Brown</div>
   <div class="priv">Your closet is stored only on this device. Nobody else can see it and it is not backed up anywhere until you back it up yourself.</div>
   <button class="footshare" id="footShare">
@@ -420,7 +420,7 @@ footer .priv{font-weight:600;margin-top:6px}
    Single file app. No server, no account, no sync.
    ===================================================================== */
 
-var BUILD = '0809261810';
+var BUILD = '0809261944';
 var CORE  = '1.0.0';
 
 /* =====================================================================
@@ -745,30 +745,50 @@ window.addEventListener('afterprint', function(){
 });
 
 /* ---------- panel stack, wired to the Android back button ---------- */
-var stack=[];
+var stack=[], afterClose={}, suppressPop=false;
+
+/* Opening and closing a panel never depends on the history API succeeding. Some
+   browsers throttle or refuse pushState, and a close button that quietly did
+   nothing because history.back() failed would leave someone stuck looking at a
+   wig with no way out. So the panel is shown and hidden directly, and history is
+   kept in step separately and allowed to fail. */
 function openPanel(id){
   var p=$(id); if(!p) return;
   p.classList.add('open');
   stack.push(id);
-  history.pushState({panel:id, depth:stack.length}, '');
   p.scrollTop=0;
   document.body.style.overflow='hidden';
+  try{ history.pushState({panel:id, depth:stack.length}, ''); }catch(e){}
 }
-/* Every close goes through history, so the Android back button and the close
-   button in the corner follow exactly the same path and nested panels peel off
-   one at a time. */
-function closeTop(){ if(stack.length) history.back(); }
-window.addEventListener('popstate', function(){
-  if(!stack.length) return;
+function popPanel(){
+  if(!stack.length) return null;
   var id=stack.pop();
   var p=$(id); if(p) p.classList.remove('open');
   if(!stack.length) document.body.style.overflow='';
   if(typeof afterClose[id]==='function'){ var fn=afterClose[id]; afterClose[id]=null; setTimeout(fn, 0); }
+  return id;
+}
+function closeTop(){
+  if(!stack.length) return;
+  popPanel();
+  suppressPop=true;
+  try{ history.back(); }catch(e){}
+  setTimeout(function(){ suppressPop=false; }, 500);
+}
+window.addEventListener('popstate', function(){
+  /* this is the history entry we just retired ourselves, not the back button */
+  if(suppressPop){ suppressPop=false; return; }
+  popPanel();
 });
-var afterClose={};
 document.addEventListener('click', function(e){
-  var b=e.target.closest('[data-close]');
-  if(b) closeTop();
+  var t=e.target;
+  var b=(t && t.closest) ? t.closest('[data-close]') : null;
+  if(b){ e.preventDefault(); closeTop(); }
+});
+/* belt and braces: bind each close button directly as well, so a panel can always
+   be shut even if the delegated listener above is interfered with */
+Array.prototype.forEach.call(document.querySelectorAll('[data-close]'), function(b){
+  b.addEventListener('click', function(e){ e.stopPropagation(); e.preventDefault(); closeTop(); });
 });
 
 /* ---------- photo capture and resize ---------- */
