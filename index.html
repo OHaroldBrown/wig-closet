@@ -299,7 +299,7 @@ footer .priv{font-weight:600;margin-top:6px}
     <div class="care-list" id="careList"></div>
   </section>
 
-  <input class="search" id="search" type="search" placeholder="Search name, style, colour, notes, storage" autocomplete="off">
+  <input class="search" id="search" type="search" placeholder="Search name, style, color, notes, storage" autocomplete="off">
 
   <div id="chips"></div>
   <button class="morebtn" id="moreBtn">More filters</button>
@@ -325,7 +325,7 @@ footer .priv{font-weight:600;margin-top:6px}
 </button>
 
 <footer>
-  <div class="stamp" id="buildStamp">BUILD 0809262004 &middot; CORE 1.0.0</div>
+  <div class="stamp" id="buildStamp">BUILD 0809262037 &middot; CORE 1.0.0</div>
   <div>Designed by Harold Brown</div>
   <div class="priv">Your closet is stored only on this device. Nobody else can see it and it is not backed up anywhere until you back it up yourself.</div>
   <button class="footshare" id="footShare">
@@ -420,7 +420,7 @@ footer .priv{font-weight:600;margin-top:6px}
    Single file app. No server, no account, no sync.
    ===================================================================== */
 
-var BUILD = '0809262004';
+var BUILD = '0809262037';
 var CORE  = '1.0.0';
 
 /* =====================================================================
@@ -437,7 +437,7 @@ var PRESETS = {
   capSize:      ['Petite','Standard','Large','Custom'],
   parting:      ['13x4','13x6','T-part','Free part','Closed weft','Middle','Side'],
   texture:      ['Straight','Wavy','Curly','Kinky'],
-  colorFamily:  ['Blonde','Brunette','Black','Copper','Red','Grey or silver','Apricot','Colorful'],
+  colorFamily:  ['Blonde','Brunette','Black','Copper','Red','Gray or silver','Apricot','Colorful'],
   tone:         ['Warm','Cool','Neutral'],
   wearMethod:   ['Glueless','Glued','Taped','Band only','Clips'],
   status:       ['Owned','Wishlist','Sold or passed on','Retired'],
@@ -455,7 +455,7 @@ var NO_LACE   = ['Headband','Open wefted','Monofilament top'];
 
 /* =====================================================================
    PRODUCT RULES for the pairing engine.
-   Hard filters run first on fibre and cap construction, because heat and
+   Hard filters run first on fiber and cap construction, because heat and
    adhesive are a physical yes or no. Soft scoring runs after.
    ===================================================================== */
 var PRODUCTS = [
@@ -516,7 +516,7 @@ var PRODUCTS = [
 
   { name:'Heat protectant made for wigs',
     needsHeatSafe:true,
-    why:'Buys you a margin of error on a fibre that cannot repair itself.',
+    why:'Buys you a margin of error on a fiber that cannot repair itself.',
     score:function(w){ var s=2,r=['anything you heat should get this first']; return {s:s,r:r}; } },
 
   { name:'Handheld steamer',
@@ -529,16 +529,16 @@ var PRODUCTS = [
 
   { name:'Synthetic wig shampoo, sulfate free',
     fiberIn:['Futura','Bio Futura','Heat friendly synthetic','Standard synthetic'],
-    why:'Cleans without stripping the coating that keeps synthetic fibre smooth.',
-    score:function(w){ return {s:3,r:['matched to the fibre on this unit']}; } },
+    why:'Cleans without stripping the coating that keeps synthetic fiber smooth.',
+    score:function(w){ return {s:3,r:['matched to the fiber on this unit']}; } },
 
   { name:'Sulfate free shampoo for human hair',
     fiberIn:['Human hair','Blend'],
     why:'A wefted human hair unit has no scalp feeding it, so gentle washing is the whole game.',
-    score:function(w){ return {s:3,r:['matched to the fibre on this unit']}; } },
+    score:function(w){ return {s:3,r:['matched to the fiber on this unit']}; } },
 
   { name:'Leave in conditioner or detangling spray',
-    why:'Cuts friction so combing does not pull fibre out of the wefts.',
+    why:'Cuts friction so combing does not pull fiber out of the wefts.',
     score:function(w){ var s=2,r=[];
       if(w.length && Number(w.length)>=22){s+=2;r.push('long lengths tangle at the nape first');}
       if(w.texture==='Curly'||w.texture==='Kinky'){s+=1;r.push('curl patterns need slip to detangle');}
@@ -565,7 +565,7 @@ var PRODUCTS = [
       return {s:s,r:r}; } },
 
   { name:'Satin storage bag',
-    why:'Satin does not grab fibre the way cotton does.',
+    why:'Satin does not grab fiber the way cotton does.',
     score:function(w){ var s=2,r=[];
       if(w.length && Number(w.length)>=22){s+=1;r.push('long units need somewhere to lie without folding');}
       return {s:s,r:r}; } },
@@ -579,7 +579,7 @@ var PRODUCTS = [
 
   { name:'Lace tint spray',
     needsLace:true,
-    why:'Takes the lace from a flat colour to something close to your skin.',
+    why:'Takes the lace from a flat color to something close to your skin.',
     score:function(w){ var s=1,r=[];
       if(w.laceColor==='Transparent'){s+=3;r.push('transparent lace almost always needs tinting');}
       if(w.features && w.features.indexOf('Plucked hairline')>-1){s+=1;r.push('a plucked hairline is wasted under untinted lace');}
@@ -940,7 +940,7 @@ function saveBackupLocal(){
 
 /* ---------- CSV ---------- */
 var CSV_COLS = ['name','style','colorway','place','status','fiber','cap','lace','laceColor','capSize','parting','density','length','texture','combs','features','colorFamily','tone','colorCode','wearMethod','pricePaid','retail','purchaseDate','wears','lastWorn','lastWashed','washEvery','storage','storageLabel','rating1','rating2','rating3','rating4','notes','comments'];
-var CSV_HEADERS = ['Name','Style','Colourway','Place of purchase','Status','Fibre','Cap construction','Lace type','Lace colour','Cap size','Parting','Density','Length','Texture','Combs','Features','Colour family','Tone','Colour code','Wear method','Price paid','Retail value','Purchase date','Wears','Last worn','Last washed','Wash every N wears','Storage','Storage label','Comfort','Realism','How much I love it','How it holds up','Notes','My comments'];
+var CSV_HEADERS = ['Name','Style','Colorway','Place of purchase','Status','Fiber','Cap construction','Lace type','Lace color','Cap size','Parting','Density','Length','Texture','Combs','Features','Color family','Tone','Color code','Wear method','Price paid','Retail value','Purchase date','Wears','Last worn','Last washed','Wash every N wears','Storage','Storage label','Comfort','Realism','How much I love it','How it holds up','Notes','My comments'];
 
 function csvCell(v){ v=(v==null?'':String(v)); return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }
 function exportCsv(){
@@ -978,7 +978,11 @@ var HEADER_MAP = (function(){
   var m={};
   CSV_HEADERS.forEach(function(h,i){ m[normHeader(h)] = CSV_COLS[i]; });
   m['colorway']='colorway'; m['color']='colorFamily'; m['colorfamily']='colorFamily';
+  /* headers from spreadsheets exported before the spelling changed */
+  m['colourway']='colorway'; m['colour']='colorFamily'; m['colourfamily']='colorFamily';
+  m['lacecolour']='laceColor'; m['colourcode']='colorCode';
   m['fiber']='fiber'; m['lacecolor']='laceColor'; m['colorcode']='colorCode';
+  m['fibre']='fiber';
   m['cap']='cap'; m['construction']='cap'; m['brand']='place'; m['shop']='place';
   m['price']='pricePaid'; m['paid']='pricePaid'; m['value']='retail'; m['inches']='length';
   m['location']='storage'; m['comments']='comments'; m['mycomments']='comments';
@@ -1313,7 +1317,7 @@ function suggestionsFor(field){
    ===================================================================== */
 var CHIP_GROUPS_MAIN = [
   {key:'care',   label:'Care',    computed:true},
-  {key:'colorFamily', label:'Colour'},
+  {key:'colorFamily', label:'Color'},
   {key:'lengthBucket', label:'Length', computed:true},
   {key:'texture', label:'Texture'},
   {key:'storage', label:'Storage'}
@@ -1321,7 +1325,7 @@ var CHIP_GROUPS_MAIN = [
 var CHIP_GROUPS_MORE = [
   {key:'cap', label:'Construction'},
   {key:'capSize', label:'Cap size'},
-  {key:'fiber', label:'Fibre'},
+  {key:'fiber', label:'Fiber'},
   {key:'lace', label:'Lace'},
   {key:'parting', label:'Parting'},
   {key:'place', label:'Bought from'},
@@ -1709,15 +1713,15 @@ function openDetail(id, keepOpen){
     b.appendChild(s);
   }
 
-  sec('Identity',[['Style',w.style],['Colourway',w.colorway],['Bought from',w.place],['Bought on',w.purchaseDate],['Status',w.status]]);
-  sec('Construction',[['Fibre',w.fiber],['Cap',w.cap],['Lace',w.lace],['Lace colour',w.laceColor],['Cap size',w.capSize],['Parting',w.parting],['Density',w.density?w.density+'%':''],['Length',w.length?w.length+' inches':''],['Texture',w.texture],['Combs',w.combs],['Worn as',w.wearMethod]]);
+  sec('Identity',[['Style',w.style],['Colorway',w.colorway],['Bought from',w.place],['Bought on',w.purchaseDate],['Status',w.status]]);
+  sec('Construction',[['Fiber',w.fiber],['Cap',w.cap],['Lace',w.lace],['Lace color',w.laceColor],['Cap size',w.capSize],['Parting',w.parting],['Density',w.density?w.density+'%':''],['Length',w.length?w.length+' inches':''],['Texture',w.texture],['Combs',w.combs],['Worn as',w.wearMethod]]);
   if((w.features||[]).length){
     var fs=el('div','section'); fs.appendChild(el('h3',null,'Features'));
     var tg=el('div','togglegrid');
     w.features.forEach(function(f){ var x=el('button','on',f); x.disabled=true; tg.appendChild(x); });
     fs.appendChild(tg); b.appendChild(fs);
   }
-  sec('Colour',[['Family',w.colorFamily],['Tone',w.tone],['Code',w.colorCode]]);
+  sec('Color',[['Family',w.colorFamily],['Tone',w.tone],['Code',w.colorCode]]);
   sec('Storage',[['Kept in',w.storage],['Label',w.storageLabel]]);
   sec('Money',[['Paid',num(w.pricePaid)!=null?money(num(w.pricePaid)):''],['Retail',num(w.retail)!=null?money(num(w.retail)):'']]);
 
@@ -1761,7 +1765,7 @@ function copyWig(id){
   Store.put('items', w).then(function(){
     bumpChange(); rebuildUserPresets(); renderAll();
     openForm(w.id);
-    toast('Copied. Change the colourway and save.');
+    toast('Copied. Change the colorway and save.');
   });
 }
 function deleteWig(id){
@@ -1784,9 +1788,9 @@ function deleteWig(id){
 function evaluateProduct(p, w){
   /* hard filters first */
   if(p.needsHeatSafe){
-    if(!w.fiber) return {verdict:'unknown', text:'Add the fibre for this unit before you put any heat near it.'};
+    if(!w.fiber) return {verdict:'unknown', text:'Add the fiber for this unit before you put any heat near it.'};
     if(NO_HEAT.indexOf(w.fiber)>-1) return {verdict:'no', text:'This unit is '+w.fiber.toLowerCase()+'. Heat will melt it and the damage cannot be undone.'};
-    if(HEAT_SAFE.indexOf(w.fiber)===-1) return {verdict:'unknown', text:'I do not recognise the fibre on this unit, so I will not tell you it is safe to heat. Check with whoever you bought it from.'};
+    if(HEAT_SAFE.indexOf(w.fiber)===-1) return {verdict:'unknown', text:'I do not recognise the fiber on this unit, so I will not tell you it is safe to heat. Check with whoever you bought it from.'};
   }
   if(p.needsLace){
     if(!w.cap) return {verdict:'unknown', text:'Add the cap construction before using anything that bonds to lace.'};
@@ -1794,8 +1798,8 @@ function evaluateProduct(p, w){
     if(LACE_CAPS.indexOf(w.cap)===-1) return {verdict:'unknown', text:'I cannot tell whether this cap has usable lace at the hairline.'};
   }
   if(p.fiberIn){
-    if(!w.fiber) return {verdict:'unknown', text:'Add the fibre and this will tell you whether it is the right wash for this unit.'};
-    if(p.fiberIn.indexOf(w.fiber)===-1) return {verdict:'no', text:'Made for a different fibre than the '+w.fiber.toLowerCase()+' on this unit.'};
+    if(!w.fiber) return {verdict:'unknown', text:'Add the fiber and this will tell you whether it is the right wash for this unit.'};
+    if(p.fiberIn.indexOf(w.fiber)===-1) return {verdict:'no', text:'Made for a different fiber than the '+w.fiber.toLowerCase()+' on this unit.'};
   }
   var r=p.score(w);
   return { verdict: r.s>=3 ? 'yes' : (r.s<=0 ? 'no' : 'maybe'), text:'', reasons:r.r, score:r.s };
@@ -1808,7 +1812,7 @@ function openPairing(id){
 
   var intro=el('div','section');
   intro.appendChild(el('h3',null,'How this works'));
-  intro.appendChild(el('p',null,'Fibre and cap construction are checked first, because heat and adhesive are a physical yes or no. Everything after that is a judgement call based on density, lace, texture and how you wear this one. Where the answer depends on something you have not entered, it says so rather than guessing.'));
+  intro.appendChild(el('p',null,'Fiber and cap construction are checked first, because heat and adhesive are a physical yes or no. Everything after that is a judgement call based on density, lace, texture and how you wear this one. Where the answer depends on something you have not entered, it says so rather than guessing.'));
   intro.style.fontWeight='600';
   b.appendChild(intro);
 
@@ -1888,7 +1892,7 @@ function openForm(id){
   field(s1,'name','Name',{placeholder:'Christina', hint:'The only thing you have to fill in. Everything else can wait until later.'});
   var two1=el('div','two'); s1.appendChild(two1);
   field(two1,'style','Style',{list:'style', placeholder:'Type or pick'});
-  field(two1,'colorway','Colourway',{list:'colorway', placeholder:'Type or pick'});
+  field(two1,'colorway','Colorway',{list:'colorway', placeholder:'Type or pick'});
   var two2=el('div','two'); s1.appendChild(two2);
   field(two2,'place','Bought from',{list:'place'});
   field(two2,'status','Status',{list:'status'});
@@ -1929,11 +1933,11 @@ function openForm(id){
   /* construction */
   var s3=el('div','section'); s3.appendChild(el('h3',null,'Construction'));
   var t3=el('div','two'); s3.appendChild(t3);
-  field(t3,'fiber','Fibre',{list:'fiber', hint:'Decides whether heat is safe.'});
+  field(t3,'fiber','Fiber',{list:'fiber', hint:'Decides whether heat is safe.'});
   field(t3,'cap','Cap construction',{list:'cap', hint:'Decides whether adhesive is possible.'});
   var t4=el('div','two'); s3.appendChild(t4);
   field(t4,'lace','Lace type',{list:'lace'});
-  field(t4,'laceColor','Lace colour',{list:'laceColor'});
+  field(t4,'laceColor','Lace color',{list:'laceColor'});
   var t5=el('div','two'); s3.appendChild(t5);
   field(t5,'capSize','Cap size',{list:'capSize'});
   field(t5,'parting','Parting',{list:'parting'});
@@ -1963,8 +1967,8 @@ function openForm(id){
   s4.appendChild(tg);
   b.appendChild(s4);
 
-  /* colour */
-  var s5=el('div','section'); s5.appendChild(el('h3',null,'Colour'));
+  /* color */
+  var s5=el('div','section'); s5.appendChild(el('h3',null,'Color'));
   var t8=el('div','three'); s5.appendChild(t8);
   field(t8,'colorFamily','Family',{list:'colorFamily'});
   field(t8,'tone','Tone',{list:'tone'});
@@ -2020,7 +2024,7 @@ function openForm(id){
 
   /* text */
   var s10=el('div','section'); s10.appendChild(el('h3',null,'Words'));
-  field(s10,'notes','Notes',{textarea:true, hint:'What it is. Colour, cut, how it is built. Facts you would tell anyone.'});
+  field(s10,'notes','Notes',{textarea:true, hint:'What it is. Color, cut, how it is built. Facts you would tell anyone.'});
   field(s10,'comments','My comments',{textarea:true, hint:'What you think. Whether it suits you, whether you would buy it again.'});
   b.appendChild(s10);
 
@@ -2139,9 +2143,9 @@ function copyAiPrompt(){
 CSV_HEADERS.join(',') + '\n\n'+
 'Rules:\n'+
 '- One row per wig.\n'+
-'- Name is required. If you only know a style and a colour, put them together like Christina (Pink Prosecco).\n'+
+'- Name is required. If you only know a style and a color, put them together like Christina (Pink Prosecco).\n'+
 '- Leave a cell completely empty if you do not know it. Never guess a price and never write 0 for something you do not know.\n'+
-'- Fibre must be one of: '+PRESETS.fiber.join(', ')+'.\n'+
+'- Fiber must be one of: '+PRESETS.fiber.join(', ')+'.\n'+
 '- Cap construction must be one of: '+PRESETS.cap.join(', ')+'.\n'+
 '- Lace type must be one of: '+PRESETS.lace.join(', ')+'.\n'+
 '- Cap size must be one of: '+PRESETS.capSize.join(', ')+'.\n'+
@@ -2311,7 +2315,7 @@ function openHelp(){
   '<p>Tap the title at the top of the screen and you can change whose closet this is at any time. Put Lisa there and the app says Lisa\u2019s Wig Closet. Leave it empty and it just says The Wig Closet. It is only a label, it changes nothing else.</p>'+
 
   '<h4>Adding your first wig</h4>'+
-  '<p>Tap Add a wig. The only thing you have to fill in is a name. Everything else is optional and you can come back to it whenever you like. If you own several colourways of the same style, add one properly, then open it and tap Copy this wig. That saves you filling the same twenty fields over and over.</p>'+
+  '<p>Tap Add a wig. The only thing you have to fill in is a name. Everything else is optional and you can come back to it whenever you like. If you own several colorways of the same style, add one properly, then open it and tap Copy this wig. That saves you filling the same twenty fields over and over.</p>'+
 
   '<h4>The fast way to add a lot of wigs at once</h4>'+
   '<p>If you already own twenty or forty units, do not type them one at a time. Do this instead:</p>'+
@@ -2324,16 +2328,16 @@ function openHelp(){
   '<p>Importing adds to your closet. It does not replace anything.</p>'+
 
   '<h4>What AI gets wrong</h4>'+
-  '<p>It is good at names, colours and lengths. It is unreliable on anything it cannot see. It will confidently invent a density, a cap size or a price if you let it, and a made up price quietly poisons your totals for good. The prompt tells it to leave cells empty when it does not know, but check the spreadsheet before you import it, especially the price columns. An empty cell is honest. A guessed number is not.</p>'+
+  '<p>It is good at names, colors and lengths. It is unreliable on anything it cannot see. It will confidently invent a density, a cap size or a price if you let it, and a made up price quietly poisons your totals for good. The prompt tells it to leave cells empty when it does not know, but check the spreadsheet before you import it, especially the price columns. An empty cell is honest. A guessed number is not.</p>'+
 
   '<h4>Notes against My comments</h4>'+
-  '<p>Notes are for what the unit is: the colour, the cut, how it is built, the things that would be true no matter who owned it. My comments are for what you think: whether it suits you, whether the lace is worth the fuss, whether you would buy it again. Keeping them apart means you can hand someone your notes without handing over your opinions.</p>'+
+  '<p>Notes are for what the unit is: the color, the cut, how it is built, the things that would be true no matter who owned it. My comments are for what you think: whether it suits you, whether the lace is worth the fuss, whether you would buy it again. Keeping them apart means you can hand someone your notes without handing over your opinions.</p>'+
 
   '<h4>Wears and washes</h4>'+
   '<p>The plus button on each tile logs a wear. Once a unit passes its wear count it appears in the pink box at the top of the screen. Mark it washed and the count starts again. If you never log wears the reminders simply stay quiet, so this part is entirely optional, but it is the one thing this app does that a spreadsheet cannot.</p>'+
 
   '<h4>What works with this unit</h4>'+
-  '<p>Open any wig and tap that button and you get products sorted into what to reach for, what is optional, and what to avoid. It checks fibre and cap construction first, because heat and adhesive are physical facts, not preferences. If you have not entered the fibre it will say it cannot tell rather than guess. Take that seriously. Heat on the wrong fibre is not a mistake you can undo.</p>'+
+  '<p>Open any wig and tap that button and you get products sorted into what to reach for, what is optional, and what to avoid. It checks fiber and cap construction first, because heat and adhesive are physical facts, not preferences. If you have not entered the fiber it will say it cannot tell rather than guess. Take that seriously. Heat on the wrong fiber is not a mistake you can undo.</p>'+
 
   '<h4>Keeping it private</h4>'+
   '<p>Two things live in settings. You can take the money off the main screen, so paid, retail and spread are not sitting there every time you open the app in front of someone. They are never deleted, they just move to Totals in the menu. And you can put a four digit PIN on the app so it asks before it opens.</p>'+
