@@ -177,6 +177,10 @@ body.arranging .tile{border-color:var(--accent);border-style:dashed}
 .togglegrid{display:flex;flex-wrap:wrap;gap:7px}
 .togglegrid button{border:2px solid var(--line-strong);border-radius:999px;padding:7px 13px;font-weight:700;font-size:14px}
 .togglegrid button.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.catbox{border:3px solid var(--accent);border-radius:14px;padding:12px;margin:0 0 13px}
+.catbox .cattitle{font-weight:800;font-size:14px;margin-bottom:4px}
+.catbox .catsub{font-weight:600;font-size:13px;margin-bottom:10px}
+.catbox.quiet{border-width:2px;border-color:var(--line-strong)}
 .photorow{display:grid;grid-template-columns:1fr 1fr;gap:11px}
 .photoslot{border:2px dashed var(--line-strong);border-radius:14px;padding:10px;text-align:center}
 .photoslot img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:10px;display:block;margin-bottom:8px}
@@ -325,7 +329,7 @@ footer .priv{font-weight:600;margin-top:6px}
 </button>
 
 <footer>
-  <div class="stamp" id="buildStamp">BUILD 0809262037 &middot; CORE 1.0.0</div>
+  <div class="stamp" id="buildStamp">BUILD 0809262049 &middot; CORE 1.0.0</div>
   <div>Designed by Harold Brown</div>
   <div class="priv">Your closet is stored only on this device. Nobody else can see it and it is not backed up anywhere until you back it up yourself.</div>
   <button class="footshare" id="footShare">
@@ -420,7 +424,7 @@ footer .priv{font-weight:600;margin-top:6px}
    Single file app. No server, no account, no sync.
    ===================================================================== */
 
-var BUILD = '0809262037';
+var BUILD = '0809262049';
 var CORE  = '1.0.0';
 
 /* =====================================================================
@@ -435,17 +439,342 @@ var PRESETS = {
   lace:         ['Swiss','HD','Transparent','Scandinavian hairline','None'],
   laceColor:    ['Transparent','Light brown','Medium brown','Dark brown'],
   capSize:      ['Petite','Standard','Large','Custom'],
-  parting:      ['13x4','13x6','T-part','Free part','Closed weft','Middle','Side'],
+  parting:      ['13x3','13x4','13x5','13x6','T-part','Free part','Closed weft','Middle','Side'],
   texture:      ['Straight','Wavy','Curly','Kinky'],
   colorFamily:  ['Blonde','Brunette','Black','Copper','Red','Gray or silver','Apricot','Colorful'],
   tone:         ['Warm','Cool','Neutral'],
   wearMethod:   ['Glueless','Glued','Taped','Band only','Clips'],
   status:       ['Owned','Wishlist','Sold or passed on','Retired'],
   storage:      ['Box','Head','Shelf','Bag','Drawer','Hanging'],
-  place:        ['Online shop','Local shop','Gift','Secondhand'],
+  place:        ['Chelsey Smith Crowns','Online shop','Local shop','Gift','Secondhand'],
   style:        [],
   colorway:     [],
   features:     ['Baby hairs','Bleached knots','Plucked hairline','Adjustable band','Velvet ear tabs','Lace pre-cut','Bangs','Curtain bangs','Layers','Money piece','Shadow root','Tinsel']
+};
+
+/* =====================================================================
+   SHOP CATALOG BLOCK
+   Plain factual specifications for wigs sold by one shop, held here only
+   so nobody has to type twenty fields by hand. This app is independent and
+   not affiliated with, endorsed by or connected to that shop or any other.
+   Nothing here is a closed set. Anything a user types goes into her own list
+   and takes precedence over this.
+
+   To refresh it, pull the shop's product feed again and replace this whole
+   block. Nothing outside it needs to change.
+   ===================================================================== */
+var SHOP_NAME = 'Chelsey Smith Crowns';
+/* set to true to also fill in the colour family from the shop's own tags */
+var CATALOG_FILLS_FAMILY = false;
+var CAT = {
+  fiber:["Bio Futura","Futura"],
+  cap:["Free part","T-part","Monofilament top","U-part"],
+  lace:["Transparent","Scandinavian hairline","Swiss"],
+  parting:["13x5","13x4","13x3","13x6","T-part"],
+  texture:["Curly","Straight","Wavy"],
+  family:["Copper","Red","Black","Brunette","Blonde","Colorful","Apricot","Gray or silver"],
+  feature:["Baby hairs","Adjustable band","Plucked hairline","Layers","Tinsel","Shadow root","Bangs"],
+  sizes:["","Large,Petite,Standard","Petite,Standard","Standard","Petite","Large,Standard"],
+  /* style, colorway, fiber, cap, lace, parting, density, length, combs, texture, family, features, sizes, price */
+  rows:[
+  ["Abby","Scandi Light Brunette",1,-1,1,2,"130","26","3",-1,-1,"B",0,"115"],
+  ["Alaria","Golden Brunette",1,0,0,1,"130","22","3",0,3,"AB",2,"120"],
+  ["Alaria","Silver",1,0,0,1,"130","22","3",0,7,"AB",4,"120"],
+  ["Alesia","",1,-1,-1,0,"130","26","",1,0,"",1,"225"],
+  ["Alexia","Dreamland",1,0,0,1,"130","22","3",2,4,"B",0,"110"],
+  ["Alexia","Saddle Brown",1,0,0,1,"135","24","3",0,3,"B",1,"110"],
+  ["Alexia","Weekend Energy",1,0,1,1,"135","24","3",2,4,"B",1,"110"],
+  ["All the Shades of Us","",1,0,0,1,"135","24","3",2,5,"B",1,"55"],
+  ["Allison","Oatmilk Honey",1,0,0,1,"120","22","3",1,4,"B",0,"115"],
+  ["Allison","Scandi",1,0,1,1,"120","22","3",1,3,"B",0,"115"],
+  ["Allison","Spiced Chai",1,0,0,1,"120","22","3",1,4,"B",0,"115"],
+  ["Alorin","Brownie Batter",1,0,0,1,"135","22","3",2,3,"BG",1,"110"],
+  ["Alorin","Legendary",1,-1,0,1,"135","22","3",-1,4,"BG",0,"110"],
+  ["Alorin","Silk Boulevard",1,0,1,1,"135","22","3",-1,4,"BGF",0,"110"],
+  ["Alyssa","Copper Skies",1,0,0,2,"130","24","3",2,0,"B",0,"115"],
+  ["Amanda","Backstage Pass",1,0,0,0,"130","22","3",0,4,"BD",0,"125"],
+  ["Ambrie","Sip Happens Blonde",1,-1,0,2,"130","23","3",-1,-1,"B",0,"90"],
+  ["Angelica","Silk Pressed",1,0,0,0,"135","26","3",2,3,"BD",0,"105"],
+  ["Apricot with Lace Front Bangs","",1,0,0,2,"140","26","3",0,6,"BG",0,"110"],
+  ["Arden","Cardigan Blonde",1,0,1,2,"130","25","3",2,4,"B",1,"100"],
+  ["Arden","Morning Glory",1,0,1,2,"130","25","3",2,4,"B",1,"100"],
+  ["Aveline","Brunette",1,0,0,2,"130","27","3",1,3,"B",1,"115"],
+  ["Bekah","70's Honey",1,-1,0,3,"130","24","",0,4,"",1,"130"],
+  ["Bel Air","Couture Honey",0,0,0,3,"130","16","4",1,4,"B",3,"110"],
+  ["Bel Air","Dark Brunette with Highlights",0,-1,0,3,"130","16","4",-1,-1,"B",0,"110"],
+  ["Bellamy","Silver Halo",1,0,1,1,"130","22","3",0,7,"B",1,"100"],
+  ["Bethany","Bonfire Glow",1,-1,1,2,"130","29","3",-1,-1,"B",0,"115"],
+  ["Bethany","Sip Happens Blonde",1,0,1,2,"130","29","3",0,4,"BF",0,"115"],
+  ["Blondechell","Godiva",1,-1,0,2,"135","28","3",-1,-1,"B",0,"120"],
+  ["Blondechell","Light Brunette",1,0,1,2,"135","28","3",0,4,"B",0,"120"],
+  ["Blondechell","Natural",1,0,1,2,"135","28","3",-1,3,"B",1,"120"],
+  ["Blondechell","Sandstone Beige",1,0,1,2,"135","28","3",2,4,"B",1,"120"],
+  ["Blondechell","Sip Happens Blonde",1,0,1,2,"135","28","3",2,4,"B",1,"120"],
+  ["Blue Ribbon Blonde","",1,0,0,0,"130","20","3",0,4,"B",0,"85"],
+  ["Bri","Dark Side of the Moon",1,-1,1,1,"130","22","3",-1,-1,"B",0,"75"],
+  ["Brianna","Sunset Spritz",1,0,1,2,"120","22","3",0,4,"B",0,"110"],
+  ["Brinlee","Caramel Twist",1,-1,1,1,"135","26","3",0,4,"B",1,"115"],
+  ["Brit","70's Honey",1,0,0,1,"130","22","3",0,5,"B",0,"110"],
+  ["Brooke","Hazelwood",1,2,1,0,"130","28","3",2,3,"B",1,"130"],
+  ["Brooke","Honey Espresso",1,2,1,0,"130","28","3",2,3,"B",1,"130"],
+  ["Brooke","Resort Ready",1,-1,1,0,"130","28","3",-1,-1,"B",0,"130"],
+  ["Butterfly Short","Brosegold",1,0,0,2,"130","14","3",0,-1,"BG",2,"110"],
+  ["Calix","Onyx Brunette",1,0,0,2,"130","24","3",1,2,"BD",2,"75"],
+  ["Cami","Chestnut Glow",1,0,0,1,"130","24","3",2,3,"B",1,"110"],
+  ["Cami","Honey Blend",1,0,0,1,"130","24","3",0,4,"B",1,"110"],
+  ["Cami","Smoke Brunette",1,0,1,1,"130","24","3",-1,3,"B",1,"110"],
+  ["Cami Headband","Soft Black",1,-1,0,-1,"130","24","3",2,2,"",1,"55"],
+  ["Camilla","Black",1,-1,2,2,"130","28","3",-1,-1,"B",0,"145"],
+  ["Camilla","Icon",1,0,2,2,"130","28","3",1,4,"B",0,"145"],
+  ["Camilla","Natural",1,-1,2,2,"130","28","3",-1,-1,"B",0,"145"],
+  ["Capri","Almond Cream",1,-1,1,2,"125","20","3",-1,-1,"B",0,"110"],
+  ["Capri","Amber Glow",1,0,1,2,"125","20","3",-1,3,"B",1,"110"],
+  ["Capri","Cardigan Blonde",1,0,0,2,"125","20","3",-1,4,"B",1,"110"],
+  ["Capri","Mauvelous Blonde",1,0,1,2,"125","20","3",-1,4,"B",1,"110"],
+  ["Caprina","",1,0,0,2,"130","26","3",0,4,"B",1,"110"],
+  ["Carlisle","St. Tropez Sunset",1,0,1,0,"130","20","3",0,4,"B",0,"125"],
+  ["Carolyn","Legendary",1,0,0,0,"130","26","3",0,4,"B",0,"115"],
+  ["Cassie","Bridle Brunette",1,0,2,2,"130","14","3",0,3,"B",0,"135"],
+  ["Cassie","Natural",1,0,1,2,"130","14","3",0,3,"B",1,"105"],
+  ["Cassie","Palm Springs Blonde",1,0,2,2,"130","14","3",0,4,"B",1,"135"],
+  ["Cassie","Sharpay Coloring",1,-1,0,2,"130","14","3",-1,-1,"B",0,"115"],
+  ["Chandy","Godiva",1,-1,2,1,"110","13","3",1,3,"B",1,"145"],
+  ["Chantal","Black",1,0,2,2,"125","22","3",2,2,"B",1,"145"],
+  ["Chantal","Godiva",1,0,2,2,"125","22","3",2,3,"B",1,"145"],
+  ["Chantal","Golden Copper",1,0,2,2,"125","22","3",2,0,"B",1,"145"],
+  ["Chantal","Natural",1,0,2,2,"125","22","3",-1,3,"B",1,"145"],
+  ["Chantal","Sandstone Beige",1,-1,2,2,"125","22","3",-1,-1,"B",0,"145"],
+  ["Chantal","Sharpay Coloring",1,-1,2,2,"125","22","3",-1,-1,"B",0,"145"],
+  ["Chantal","Sunlit Brunette",1,-1,2,2,"125","22","3",-1,-1,"B",0,"145"],
+  ["Charlestyn","Cappuccino",1,0,1,2,"130","20","3",0,3,"B",0,"110"],
+  ["Charlestyn","Nectarine",1,-1,1,2,"130","20","3",-1,-1,"B",0,"110"],
+  ["Charlestyn","Scandi Apricot",1,-1,1,2,"130","20","3",-1,-1,"B",0,"110"],
+  ["Charlestyn","Socialite Brunette",1,-1,1,2,"130","20","3",-1,-1,"B",0,"110"],
+  ["Charlestyn","Southern Charm",1,0,1,2,"130","20","3",2,4,"B",1,"110"],
+  ["Chasing Rainbows","",1,1,0,4,"125","24","3",2,2,"B",3,"60"],
+  ["Cherie","Black Cherry",1,-1,0,2,"130","24","3",1,5,"B",0,"100"],
+  ["Christina","Pink Prosecco",1,-1,0,1,"130","26","3",-1,-1,"B",0,"115"],
+  ["Claudia","",1,1,0,4,"140","20","3",0,3,"B",0,"105"],
+  ["Cloud","Scandi Light Brunette",1,0,1,2,"130","22","3",0,3,"B",0,"65"],
+  ["Court","Bronzed",1,0,1,2,"130","12","3",0,4,"B",1,"100"],
+  ["Court","Dark Brunette",1,-1,0,2,"130","12","3",-1,-1,"B",0,"100"],
+  ["Court","Glow Girl",1,-1,0,2,"130","12","3",-1,-1,"B",0,"100"],
+  ["Court","Smoke & Mirrors",1,0,0,2,"130","12","3",0,4,"B",0,"100"],
+  ["Daisy Dukes","",1,0,0,2,"130","16","3",1,4,"B",1,"105"],
+  ["Daisy Dukes","Hidden Agenda",1,0,1,2,"130","16","3",1,4,"BF",0,"105"],
+  ["Dakota","Amber Glow",1,-1,1,2,"130","21","3",2,4,"B",1,"120"],
+  ["Dakota","Brunette Brûlée",1,0,0,2,"130","24","3",2,3,"B",1,"115"],
+  ["Dakota","Cookie Butter Melt",1,0,1,2,"130","21","3",2,4,"B",1,"120"],
+  ["Dakota","Rosé AF",1,0,1,2,"130","21","3",2,5,"B",1,"120"],
+  ["Dakota","Scandi Apricot",1,0,1,2,"130","21","3",2,6,"B",0,"120"],
+  ["Dakota","Scandi Light Brunette",1,0,1,2,"130","24","3",-1,3,"B",1,"120"],
+  ["Danika","Macaroon",1,0,1,1,"130","22","3",2,4,"B",1,"115"],
+  ["Deana","Blush Outlaw",1,0,0,2,"130","22","3",1,4,"B",1,"110"],
+  ["Deana","Cinnamon Satin",1,0,1,2,"130","22","3",1,3,"B",1,"110"],
+  ["Deana","Natural",1,0,1,2,"130","22","3",1,4,"B",1,"110"],
+  ["Deana","Toffee Blonde",1,0,1,2,"130","22","3",1,4,"B",1,"110"],
+  ["Delayne","Ginger Spice",1,0,1,1,"130","22","3",0,-1,"B",0,"100"],
+  ["Devyn","Desert Darling",1,0,1,0,"130","16","3",1,3,"B",0,"110"],
+  ["Devyn","She's Expensive",1,0,1,0,"130","16","3",1,4,"B",0,"110"],
+  ["Dezzie","Semi-Sweet",1,0,1,1,"130","20","3",2,3,"B",1,"110"],
+  ["Dua","Warm Glow Brown",1,0,0,1,"125","14","3",-1,3,"B",1,"105"],
+  ["Ettie","Toffee Temptation",1,-1,1,2,"125","10","3",1,4,"B",0,"70"],
+  ["Eva","Godiva",1,-1,2,2,"130","22","3",0,3,"B",2,"155"],
+  ["Fiora","Cafe Society",1,-1,1,1,"135","22","3",2,3,"B",1,"110"],
+  ["Frankie","German Chocolate Cake",1,-1,0,3,"130","11","3",-1,-1,"B",0,"110"],
+  ["Golden Ambition","",1,0,0,1,"125","14","3",0,4,"",0,"105"],
+  ["Golden Sharpay","",1,0,0,2,"140","26","3",0,4,"B",0,"115"],
+  ["Gwynn","",1,0,0,3,"130","15","3",0,3,"B",0,"110"],
+  ["Hennelly","Golden Mocha",1,2,0,2,"130","21","3",0,3,"B",1,"130"],
+  ["Hilary","Natural",1,0,1,2,"135","28","3",0,3,"B",1,"120"],
+  ["Ily","Bellini Brunette",1,0,1,1,"130","20","3",0,3,"B",1,"105"],
+  ["Imayah","Bronzite Quartz",1,0,0,1,"130","25","3",0,3,"B",1,"115"],
+  ["Itsa","Oxford Grey",1,-1,1,1,"130","24","3",2,7,"B",1,"100"],
+  ["Ivette","The Hamptons",1,-1,1,3,"130","20","",1,4,"",0,"130"],
+  ["Jalissa","Sandstone Silver",1,1,0,4,"130","18","3",2,4,"B",2,"115"],
+  ["Janessa","Aesthetic Blonde",1,0,1,1,"125","22","3",1,4,"B",1,"110"],
+  ["Jayme","",1,0,1,1,"130","16","3",1,4,"B",2,"110"],
+  ["Jazmine","Soft Blonde Blush",1,-1,1,1,"130","28","3",-1,-1,"B",0,"110"],
+  ["Jen","Cashmere",1,0,0,2,"130","22","3",0,4,"B",1,"120"],
+  ["Jen","Peachwood Blonde",1,0,1,2,"130","22","3",0,4,"B",0,"115"],
+  ["Jen","Sip Happens Blonde",1,-1,1,2,"130","22","3",-1,-1,"B",0,"115"],
+  ["Jen","Sunset Spritz",1,-1,1,2,"130","22","3",-1,-1,"B",0,"115"],
+  ["Jetta","Bridle Brunette",1,-1,2,2,"120","24","3",-1,-1,"B",0,"160"],
+  ["Jetta","Cookie Butter Melt",1,0,1,2,"120","24","3",0,4,"B",1,"115"],
+  ["Jetta","Natural",1,0,2,2,"120","24","3",0,4,"B",1,"160"],
+  ["Joey","West Coast Glow",1,-1,1,2,"130","15","3",-1,-1,"B",0,"105"],
+  ["Jojo","Boba Tea",1,0,1,2,"125","12","3",0,3,"B",1,"85"],
+  ["Jonah","Amber Vinyl",1,2,1,3,"130","23","3",2,3,"B",1,"155"],
+  ["Jori","Berry Hollywood",1,0,0,1,"130","24","3",0,1,"B",1,"70"],
+  ["Joslyn","Driftwood Dream",1,0,1,0,"135","18","3",1,4,"BF",1,"110"],
+  ["June","Backstage Brunette",1,-1,1,1,"130","19","3",-1,-1,"B",0,"100"],
+  ["Juno","Greige",1,0,0,1,"135","22","3",-1,3,"B",1,"100"],
+  ["Kallie","Smoke & Mirrors",1,0,1,2,"130","22","3",0,4,"B",0,"110"],
+  ["Kam","",1,0,0,1,"140","30","4",0,4,"BC",0,"60"],
+  ["Karen","Java Jive",1,0,1,1,"130","22","3",2,3,"B",0,"65"],
+  ["Karla","Natural",1,0,0,2,"125","24","3",0,3,"B",1,"110"],
+  ["Karys","Scandi Apricot",1,0,1,2,"125","16","3",0,6,"BD",0,"115"],
+  ["Karys U Blend","Apricot",1,3,-1,-1,"130","18","4",0,6,"",3,"50"],
+  ["Katie","Black",1,0,0,2,"130","14","3",0,2,"B",1,"105"],
+  ["Katie","Catwalk Copper",1,0,0,2,"130","14","3",0,0,"B",0,"105"],
+  ["Katie","Desert Pearl",1,0,0,2,"130","14","3",0,4,"B",0,"105"],
+  ["Katie","Godiva",1,0,0,2,"130","14","3",0,3,"B",1,"105"],
+  ["Katie","Pepper & Salt",1,0,1,2,"130","14","3",0,4,"B",1,"105"],
+  ["Katie","Sharpay Coloring",1,-1,1,2,"130","14","3",0,4,"B",1,"105"],
+  ["Katie","Toasted Biscotti",1,0,1,2,"130","14","3",0,4,"B",1,"65"],
+  ["Kaya","",1,-1,0,1,"130","18","3",-1,-1,"B",0,"70"],
+  ["Kaydence","Coastal Cream",1,-1,1,1,"130","17","3",-1,-1,"B",0,"110"],
+  ["Kaye","Canyon Honey",1,-1,1,2,"130","22","3",-1,-1,"B",0,"115"],
+  ["Keegan","",1,0,1,1,"130","20","3",1,4,"B",1,"100"],
+  ["Kelleigh","Lone Wolf",1,-1,0,3,"130","18","",-1,3,"G",1,"130"],
+  ["Kellen","Rose Latte Drip",1,0,0,1,"130","22","3",1,3,"B",1,"110"],
+  ["Kelsi T-Part","",1,1,0,4,"140","28","3",0,2,"B",0,"95"],
+  ["Kensington","Apricutie",0,0,1,0,"130","14","4",1,6,"BC",3,"110"],
+  ["Kensington","Couture Honey",0,0,1,0,"130","14","4",1,4,"BC",3,"110"],
+  ["Kensington","Dark Brunette with Highlights",0,0,0,0,"130","14","4",1,3,"BC",3,"110"],
+  ["Kensington","Ginger Blend",0,0,0,0,"130","14","4",1,0,"BC",0,"110"],
+  ["Kensington","Palm Honey",0,0,0,0,"130","14","4",1,4,"BC",3,"110"],
+  ["Kensington","Terracotta",0,0,0,0,"130","14","4",1,0,"BC",3,"110"],
+  ["Kiana","Manor House",1,0,0,2,"130","18","3",2,3,"B",1,"105"],
+  ["Kindra","Champagne Brunette",1,2,0,-1,"130","25","",0,3,"",0,"150"],
+  ["Kirsten","Everyday Blend",1,0,1,1,"135","30","3",2,4,"B",1,"120"],
+  ["Kirsten","Pop Star Streaks",1,-1,1,3,"135","30","",2,4,"",1,"130"],
+  ["Kirsten","Spun Amber",1,0,1,1,"135","30","3",2,3,"B",1,"115"],
+  ["Knox","Smokin' Hot",1,0,0,1,"130","24","3",0,5,"B",0,"110"],
+  ["Kyla","Spotlight in Pink",1,0,0,1,"135","22","3",0,4,"B",1,"105"],
+  ["Kyla","Toasted Coconut",1,0,0,1,"135","22","3",0,4,"B",1,"105"],
+  ["Kylie with Fringe","Amber Cocoa",1,0,0,1,"130","22","3",0,0,"BG",1,"105"],
+  ["Lacey","Espresso Self",1,0,1,1,"130","24","3",2,3,"B",0,"60"],
+  ["LaLa","Godiva",1,-1,2,2,"110","22","3",1,3,"BD",1,"155"],
+  ["Lala","Natural",1,-1,2,2,"110","22","3",-1,-1,"B",0,"155"],
+  ["LaLa","Palm Springs Pretty",1,0,2,2,"110","22","3",2,4,"B",1,"155"],
+  ["LaLa","Scandi Apricot",1,-1,2,2,"110","22","3",2,6,"B",1,"155"],
+  ["Lala Midi","Amber Glow",1,0,2,2,"110","18","3",1,3,"BD",0,"135"],
+  ["Lala Midi","Dark Dimensional Apricot",1,0,2,2,"110","18","3",1,6,"BD",0,"135"],
+  ["LaLa Midi","Natural",1,-1,2,2,"110","18","3",-1,-1,"B",0,"135"],
+  ["Lala Midi","Scandi Blonde",1,0,1,2,"120","18","3",2,4,"B",1,"110"],
+  ["Lala Midi","Socialite Blonde",1,-1,1,2,"120","18","3",-1,-1,"B",0,"110"],
+  ["Landy","Caramel Brew",1,0,1,2,"135","18","3",0,4,"B",2,"115"],
+  ["Langley","Black",1,1,0,4,"125","24","3",2,2,"BG",1,"90"],
+  ["Langley","Boot Scoot Brunette",1,1,0,4,"125","24","3",2,3,"BG",1,"90"],
+  ["Langley","Pacific Coast Blonde",1,-1,0,4,"125","24","3",-1,-1,"B",0,"90"],
+  ["Langley","Tumbleweave",1,1,0,4,"125","24","3",2,3,"BG",1,"90"],
+  ["Laurel","",1,0,1,1,"130","18","3",1,4,"B",2,"65"],
+  ["Laurel","",1,0,1,1,"130","18","3",1,4,"B",2,"105"],
+  ["Lee","Cashmere Pecan",1,0,0,1,"130","28","3",1,3,"BG",1,"110"],
+  ["Lesha","Hollywood Heirloom",1,-1,0,3,"130","18","",0,3,"",0,"130"],
+  ["Lexi","Beach House",1,0,0,3,"135","18","3",1,4,"B",2,"115"],
+  ["Lilia","Ginger Brown",1,-1,0,1,"130","22","3",-1,-1,"B",0,"110"],
+  ["Lilia","Honeypot Blonde",1,-1,0,1,"130","22","3",-1,-1,"B",0,"110"],
+  ["Lilia","Mochaccino",1,-1,0,1,"130","22","3",-1,-1,"B",0,"110"],
+  ["Lilia","Moonbeam",1,0,0,1,"130","22","3",1,3,"BGD",2,"110"],
+  ["Lilia","Salt & Pepper",1,-1,0,1,"130","22","3",-1,-1,"B",0,"110"],
+  ["Little Miss Lace Topper","",1,-1,0,-1,"","26","4",-1,-1,"B",0,"55"],
+  ["Liviana","Lavender Veil",1,0,1,2,"135","28","3",0,5,"B",1,"120"],
+  ["Luciana","Creme Brulee",1,0,1,3,"130","26","3",2,4,"B",2,"120"],
+  ["Lucy","Americano",1,0,0,0,"130","14","3",-1,3,"B",1,"135"],
+  ["Lucy","Blondie",1,2,0,0,"130","14","3",1,4,"B",2,"135"],
+  ["Lucy","Sunwashed Gold",1,2,1,-1,"130","14","3",1,4,"B",1,"135"],
+  ["Luna","Femme Fatale",1,0,1,1,"130","26","3",0,4,"B",1,"115"],
+  ["Mara","Ballet Brunette",1,-1,1,3,"130","28","",1,3,"",1,"130"],
+  ["Mara","Burnt Caramel",1,-1,0,3,"130","28","",1,4,"",1,"130"],
+  ["Mara","French Toast",1,-1,0,3,"130","28","",1,3,"",1,"130"],
+  ["Mara","Honeyed Up",1,-1,1,3,"130","28","",1,4,"",1,"130"],
+  ["Mara","Sandy Beaches",1,0,1,1,"130","28","3",1,4,"B",1,"115"],
+  ["Mara","Snickerdoodle",1,-1,0,3,"130","28","",1,4,"",1,"130"],
+  ["Mara","Sunset Strip",1,-1,0,3,"130","28","",1,4,"",0,"130"],
+  ["Mariposa","Model Behavior",1,0,2,2,"110","19","3",0,3,"B",1,"155"],
+  ["Marseille","Apricutie",0,0,1,0,"135","14","4",0,6,"B",3,"110"],
+  ["Martina","Hidden Agenda",1,-1,1,2,"130","27","3",-1,-1,"B",0,"115"],
+  ["McKenna","Copper Cascade",1,0,0,2,"125","20","3",1,3,"BD",0,"100"],
+  ["Meghan","Amber Glow",1,0,2,2,"125","22","3",2,6,"BD",1,"155"],
+  ["Meghan","Bayside Blonde",1,0,2,2,"130","22","3",0,4,"B",1,"155"],
+  ["Meghan","Black",1,-1,2,2,"130","22","3",2,2,"BD",1,"155"],
+  ["Meghan","Godiva",1,0,2,2,"125","22","3",2,3,"BD",1,"155"],
+  ["Meghan","Golden Copper",1,0,2,2,"125","22","3",2,0,"BD",1,"155"],
+  ["Meghan","Natural",1,-1,2,2,"125","22","3",2,3,"BD",1,"155"],
+  ["Meghan","Natural",1,2,1,0,"130","22","3",2,3,"BD",1,"140"],
+  ["Meghan","Palm Social",1,0,2,2,"130","22","3",-1,3,"B",1,"155"],
+  ["Meghan","Palm Springs Blonde",1,-1,2,2,"130","22","3",2,4,"B",1,"155"],
+  ["Meghan","Sunlit Brunette",1,0,2,2,"130","22","3",1,3,"BD",0,"155"],
+  ["Mikayla","Black",1,0,0,2,"135","28","3",2,2,"BC",5,"115"],
+  ["Mikayla","Chocolate Milk",1,0,0,2,"135","28","3",2,3,"BC",5,"115"],
+  ["Mikayla","Classic Copper",1,0,0,2,"135","28","3",0,0,"BC",2,"85"],
+  ["Mikayla","Classic Copper",1,0,0,2,"135","28","3",0,0,"BC",2,"115"],
+  ["Mikayla","Fall Edit",1,0,0,2,"135","28","3",0,4,"BC",0,"115"],
+  ["Mikayla","Fifth Avenue Blonde",1,0,0,2,"135","28","3",0,4,"BC",0,"115"],
+  ["Mikayla","Heirloom Brunette",1,0,0,2,"135","28","3",0,3,"BC",0,"115"],
+  ["Mikayla","Pretty Powerful",1,0,0,2,"135","28","3",0,5,"BC",0,"115"],
+  ["Mikayla","Smitten Brunette",1,0,0,2,"135","28","3",2,3,"BC",5,"115"],
+  ["Minah","Brownie Batter",1,0,0,3,"135","18","3",2,3,"B",0,"100"],
+  ["Morgana","Ginger Blend",0,0,0,0,"140","26","3",0,0,"ABC",0,"70"],
+  ["Neve","Rich Honey",1,0,2,2,"130","25","3",0,4,"BD",0,"165"],
+  ["Nora","Godiva",1,0,0,2,"130","22","3",2,3,"B",0,"105"],
+  ["Norie","Bronze Horizon",1,-1,0,0,"130","29","3",-1,-1,"",0,"130"],
+  ["Nyssa","Amalfi Gold",1,-1,1,1,"125","24","3",1,4,"B",0,"105"],
+  ["Oakley","Amber Glow",1,0,1,2,"130","18","3",0,3,"B",1,"115"],
+  ["One Nation, Under Tinsel","",1,1,0,4,"130","28","3",0,3,"BE",0,"75"],
+  ["Paris, But Make It Crown","",1,0,2,2,"130","28","3",-1,3,"B",0,"105"],
+  ["Paris, But Make It Crown","",1,0,2,2,"130","28","3",-1,3,"B",0,"145"],
+  ["Pauleen","Cool Blend",0,0,0,1,"130","24","4",-1,3,"",0,"95"],
+  ["Prescott","Runway Rodeo",1,0,0,1,"130","26","3",1,0,"BE",1,"75"],
+  ["Quinn","Bad Decisions Brunette",1,-1,0,2,"135","29","3",-1,-1,"B",0,"115"],
+  ["Regina","Amber Glow",1,-1,2,1,"130","24","3",-1,-1,"B",0,"145"],
+  ["Remi","Arctic Attitude",1,-1,1,3,"130","24","",-1,-1,"",0,"130"],
+  ["Retta","Bing Cherry",1,-1,1,3,"130","20","3",1,3,"B",0,"125"],
+  ["Rikki","Wanderlust Blonde",1,-1,0,1,"130","24","3",-1,-1,"B",0,"110"],
+  ["Rixton","Legendary",1,0,0,3,"135","26","3",-1,4,"BD",0,"115"],
+  ["Robyn","Unbothered",1,0,0,2,"130","24","3",2,4,"B",0,"110"],
+  ["Roxanna","Blonde Diggity",1,0,1,2,"130","20","3",0,4,"B",1,"110"],
+  ["Roxanna","Nectarine",1,0,0,2,"130","20","3",2,4,"B",1,"110"],
+  ["Rubie","Golden Copper",1,-1,1,1,"140","19","3",-1,-1,"B",0,"120"],
+  ["Ryan","",1,1,0,4,"140","26","3",0,0,"B",0,"95"],
+  ["Sadie","Divorce Party",1,0,1,2,"135","25","3",2,4,"B",1,"110"],
+  ["Sadie","Sip Happens Blonde",1,0,1,1,"130","26","3",2,4,"BF",0,"110"],
+  ["Sadie","Smoke & Mirrors",1,-1,1,1,"130","26","3",-1,-1,"B",0,"110"],
+  ["Savannah","Fringe Benefits",1,0,0,2,"130","22","3",1,2,"BGE",1,"110"],
+  ["Scene","",1,-1,0,3,"125","22","3",1,4,"B",0,"85"],
+  ["Serving Independence","",1,1,0,4,"130","28","3",0,0,"BE",0,"75"],
+  ["Shalie","Crimson Velvet",1,0,0,1,"130","22","3",2,1,"B",0,"100"],
+  ["Shaulie","Soft Black",1,0,0,1,"130","25","3",2,2,"BD",0,"115"],
+  ["Shaulie","Spun Amber",1,-1,1,1,"130","26","3",2,-1,"BD",0,"115"],
+  ["Sheridan","70's Honey",1,2,0,3,"130","24","3",2,4,"B",1,"130"],
+  ["Sheridan","Dirrrty Blonde",1,2,1,3,"130","24","3",2,2,"B",1,"130"],
+  ["Skyla","Amethyst Affair",1,0,1,1,"135","22","3",0,5,"B",0,"110"],
+  ["Soho","Weekend",0,0,0,3,"130","24","3",2,3,"B",3,"125"],
+  ["Sommer","",1,2,0,4,"130","18","3",0,4,"",0,"135"],
+  ["Sommer","Brown Eyed Girl",1,-1,0,4,"130","18","3",-1,-1,"",0,"135"],
+  ["Sommer","Cali Honey",1,-1,0,4,"130","18","3",-1,-1,"",0,"135"],
+  ["Sommer","Frosted Honey",1,2,0,4,"130","18","3",2,4,"F",0,"135"],
+  ["Sota","Pop Rocks",1,-1,0,1,"130","18","3",-1,-1,"B",0,"105"],
+  ["Stacey","",1,0,0,3,"135","40","4",1,3,"B",0,"95"],
+  ["Summer Giselle - Pre-cut","",1,2,0,3,"140","28","3",0,4,"B",1,"150"],
+  ["Summer Zoey","Blonde Cinnamon Swirl",1,-1,0,0,"130","22","3",-1,4,"BG",0,"225"],
+  ["Summer Zoey","Disco Sunset",1,-1,0,0,"130","22","3",-1,0,"BG",0,"225"],
+  ["Summer Zoey","Honey Latte",1,-1,0,0,"130","22","3",2,4,"BG",0,"225"],
+  ["Summer Zoey","Lone Wolf",1,0,0,1,"130","22","3",0,5,"B",1,"115"],
+  ["Summer Zoey","Molasses Honey",1,-1,0,0,"130","22","3",2,3,"BG",0,"225"],
+  ["Summer Zoey","Redwood Romance",1,-1,0,0,"130","22","3",2,0,"BG",0,"225"],
+  ["Summer Zoey","Socialite",1,-1,0,0,"130","22","3",2,4,"BG",0,"225"],
+  ["Suzette","Soft Spoken Blonde",1,-1,1,1,"130","23","3",-1,-1,"B",0,"60"],
+  ["Tarynn","Camera Ready",1,0,1,1,"130","26","3",0,3,"B",1,"110"],
+  ["Tinley","Pearly Blonde",1,2,0,0,"135","24","3",2,4,"B",1,"145"],
+  ["Tressa","Natural",1,0,1,2,"130","30","3",0,4,"B",0,"115"],
+  ["Trisha","Late Checkout",1,0,0,3,"135","12","3",0,4,"BF",0,"100"],
+  ["Tru","Silk Boulevard",1,0,0,0,"135","18","3",0,4,"BG",0,"95"],
+  ["Vonn Midi","Mall Babe",1,-1,2,2,"120","19","3",-1,-1,"B",0,"130"],
+  ["Vonn Midi","Natural",1,0,2,2,"120","19","3",1,4,"B",0,"135"],
+  ["Waverly","",1,0,0,1,"130","24","3",0,3,"B",0,"110"],
+  ["White Baseball Hat Wig Short","Black",1,-1,-1,-1,"110","10","",0,-1,"",0,"10"],
+  ["White Baseball Hat Wig with CSC Logo","Short black",1,-1,-1,-1,"110","10","",0,-1,"",0,"10"],
+  ["White Baseball Hat with CSC logo Mid-length","Black",1,-1,-1,-1,"110","10","",0,-1,"",0,"10"],
+  ["Wren","Golden Taupe",1,0,0,2,"130","24","3",0,4,"BG",1,"115"],
+  ["Zeppelin","Black",1,-1,0,1,"120","26","3",-1,-1,"B",0,"85"],
+  ["Zeppelin","Bridle Brunette",1,0,0,1,"120","26","3",0,0,"BD",1,"115"],
+  ["Zeppelin","Café Rosé",1,0,0,1,"120","26","3",0,4,"B",4,"115"],
+  ["Zoey","Plum Noir",1,0,0,1,"130","26","3",2,5,"BG",1,"115"],
+  ["Zuri","Grape Soda",1,0,0,1,"130","28","3",1,5,"B",1,"65"],
+  ]
 };
 
 var HEAT_SAFE = ['Futura','Bio Futura','Heat friendly synthetic','Human hair','Blend'];
@@ -1295,6 +1624,49 @@ function tileSub(w){
   return bits.join(', ');
 }
 
+/* ---------- reading the shop catalog ---------- */
+function catDict(list, i){ return (i>=0 && list[i]!=null) ? list[i] : ''; }
+function catStyles(){
+  var seen={}, out=[];
+  CAT.rows.forEach(function(r){ if(!seen[r[0]]){ seen[r[0]]=1; out.push(r[0]); } });
+  return out.sort();
+}
+function catColorways(style){
+  var s=(style||'').trim().toLowerCase(), out=[];
+  if(!s) return out;
+  CAT.rows.forEach(function(r){
+    if(r[0].toLowerCase()===s && r[1] && out.indexOf(r[1])===-1) out.push(r[1]);
+  });
+  return out.sort();
+}
+function catMatches(style){
+  var s=(style||'').trim().toLowerCase();
+  if(!s) return [];
+  return CAT.rows.filter(function(r){ return r[0].toLowerCase()===s; });
+}
+function catFind(style, colorway){
+  var m=catMatches(style);
+  if(!m.length) return null;
+  var c=(colorway||'').trim().toLowerCase();
+  if(c){
+    var hit=m.filter(function(r){ return (r[1]||'').toLowerCase()===c; })[0];
+    return hit||null;
+  }
+  return m.length===1 ? m[0] : null;
+}
+function catRow(r){
+  var sizes=catDict(CAT.sizes, r[12]);
+  return {
+    style:r[0], colorway:r[1],
+    fiber:catDict(CAT.fiber,r[2]), cap:catDict(CAT.cap,r[3]), lace:catDict(CAT.lace,r[4]),
+    parting:catDict(CAT.parting,r[5]), density:r[6], length:r[7], combs:r[8],
+    texture:catDict(CAT.texture,r[9]), colorFamily:catDict(CAT.family,r[10]),
+    features:(r[11]||'').split('').map(function(ch){ return CAT.feature[ch.charCodeAt(0)-65]; }).filter(Boolean),
+    capSizes: sizes ? sizes.split(',') : [],
+    retail:r[13]
+  };
+}
+
 /* ---------- user presets grow from what people type ---------- */
 var userPresets={};
 function rebuildUserPresets(){
@@ -1308,8 +1680,13 @@ function rebuildUserPresets(){
 }
 function suggestionsFor(field){
   var mine=userPresets[field]||[];
-  var seeded=(PRESETS[field]||[]).filter(function(v){ return mine.indexOf(v)===-1; });
-  return mine.concat(seeded);
+  var seeded=(PRESETS[field]||[]).slice();
+  if(field==='style') seeded=seeded.concat(catStyles());
+  var seen={};
+  return mine.concat(seeded).filter(function(v){
+    if(!v || seen[v.toLowerCase()]) return false;
+    seen[v.toLowerCase()]=1; return true;
+  });
 }
 
 /* =====================================================================
@@ -1891,12 +2268,80 @@ function openForm(id){
   var s1=el('div','section'); s1.appendChild(el('h3',null,'What is it'));
   field(s1,'name','Name',{placeholder:'Christina', hint:'The only thing you have to fill in. Everything else can wait until later.'});
   var two1=el('div','two'); s1.appendChild(two1);
-  field(two1,'style','Style',{list:'style', placeholder:'Type or pick'});
-  field(two1,'colorway','Colorway',{list:'colorway', placeholder:'Type or pick'});
+  var styleInput=field(two1,'style','Style',{list:'style', placeholder:'Type or pick'});
+  var colorwayInput=field(two1,'colorway','Colorway',{list:'colorway', placeholder:'Type or pick'});
+  var catBox=el('div','catbox'); catBox.style.display='none'; s1.appendChild(catBox);
   var two2=el('div','two'); s1.appendChild(two2);
   field(two2,'place','Bought from',{list:'place'});
   field(two2,'status','Status',{list:'status'});
   b.appendChild(s1);
+
+  /* Filling is never automatic and never overwrites. Plenty of these get customised
+     after they are bought, and silently changing something a person typed is worse
+     than making her tap once. */
+  function setVal(key, val){
+    if(val===''||val==null) return false;
+    if(formDraft[key]!==''&&formDraft[key]!=null&&formDraft[key]!==0) return false;
+    formDraft[key]=val;
+    var input=$('fld-'+key);
+    if(input) input.value=val;
+    return true;
+  }
+  function applyCatalog(row){
+    var c=catRow(row), filled=0;
+    ['fiber','cap','lace','parting','density','length','combs','texture'].forEach(function(k){
+      if(setVal(k, c[k])) filled++;
+    });
+    if(setVal('retail', c.retail)) filled++;
+    if(c.capSizes.length===1 && setVal('capSize', c.capSizes[0])) filled++;
+    if(CATALOG_FILLS_FAMILY && setVal('colorFamily', c.colorFamily)) filled++;
+    if(setVal('place', SHOP_NAME)) filled++;
+    if(!formDraft.name) setVal('name', c.colorway ? c.style+' ('+c.colorway+')' : c.style);
+    c.features.forEach(function(f){
+      if(formDraft.features.indexOf(f)===-1){ formDraft.features.push(f); filled++; }
+    });
+    repaintFeatures();
+    refreshCatBox();
+    toast(filled ? 'Filled in '+filled+' details. Change anything that is not right.' : 'Nothing left to fill, your own entries were kept.');
+  }
+  function refreshCatBox(){
+    var style=(formDraft.style||'').trim(), colorway=(formDraft.colorway||'').trim();
+    var ways=catColorways(style);
+
+    var dl=$('list-colorway');
+    if(dl){
+      dl.innerHTML='';
+      var list=ways.length ? ways : suggestionsFor('colorway');
+      list.forEach(function(v){ var o=document.createElement('option'); o.value=v; dl.appendChild(o); });
+    }
+
+    catBox.innerHTML=''; catBox.className='catbox'; catBox.style.display='none';
+    if(!catMatches(style).length) return;
+
+    var row=catFind(style, colorway);
+    if(row){
+      var c=catRow(row);
+      catBox.style.display='';
+      catBox.appendChild(el('div','cattitle', SHOP_NAME+' lists this one'));
+      var bits=[];
+      if(c.length) bits.push(c.length+' inches');
+      if(c.density) bits.push(c.density+'% density');
+      if(c.parting) bits.push(c.parting);
+      if(c.fiber) bits.push(c.fiber);
+      if(c.combs) bits.push(c.combs+' combs');
+      catBox.appendChild(el('div','catsub', bits.join(', ')+'.'));
+      var b=el('button','btn primary wide','Fill in these details');
+      b.onclick=function(){ applyCatalog(row); };
+      catBox.appendChild(b);
+      catBox.appendChild(el('div','hint','Nothing you have already typed will be changed.'));
+    } else if(ways.length){
+      catBox.style.display=''; catBox.className='catbox quiet';
+      catBox.appendChild(el('div','cattitle', SHOP_NAME+' lists '+style+' in '+ways.length+' '+(ways.length===1?'color':'colors')));
+      catBox.appendChild(el('div','catsub','Pick the colorway and the rest fills itself in: '+ways.slice(0,6).join(', ')+(ways.length>6?', and more':'')+'.'));
+    }
+  }
+  styleInput.addEventListener('input', refreshCatBox);
+  colorwayInput.addEventListener('input', refreshCatBox);
 
   /* photos */
   var s2=el('div','section'); s2.appendChild(el('h3',null,'Photos'));
@@ -1953,19 +2398,23 @@ function openForm(id){
   /* features */
   var s4=el('div','section'); s4.appendChild(el('h3',null,'Features'));
   var tg=el('div','togglegrid');
-  var allFeatures = PRESETS.features.concat(formDraft.features.filter(function(f){ return PRESETS.features.indexOf(f)===-1; }));
-  allFeatures.forEach(function(f){
-    var on=formDraft.features.indexOf(f)>-1;
-    var bt=el('button', on?'on':'', f);
-    bt.onclick=function(){
-      var i=formDraft.features.indexOf(f);
-      if(i>-1){ formDraft.features.splice(i,1); bt.className=''; }
-      else { formDraft.features.push(f); bt.className='on'; }
-    };
-    tg.appendChild(bt);
-  });
   s4.appendChild(tg);
   b.appendChild(s4);
+  function repaintFeatures(){
+    tg.innerHTML='';
+    var allFeatures = PRESETS.features.concat(formDraft.features.filter(function(f){ return PRESETS.features.indexOf(f)===-1; }));
+    allFeatures.forEach(function(f){
+      var on=formDraft.features.indexOf(f)>-1;
+      var bt=el('button', on?'on':'', f);
+      bt.onclick=function(){
+        var i=formDraft.features.indexOf(f);
+        if(i>-1){ formDraft.features.splice(i,1); bt.className=''; }
+        else { formDraft.features.push(f); bt.className='on'; }
+      };
+      tg.appendChild(bt);
+    });
+  }
+  repaintFeatures();
 
   /* color */
   var s5=el('div','section'); s5.appendChild(el('h3',null,'Color'));
@@ -2034,6 +2483,7 @@ function openForm(id){
   row2.appendChild(save); row2.appendChild(cancel);
   b.appendChild(row2);
 
+  refreshCatBox();
   openPanel('panel-form');
 }
 function saveForm(){
@@ -2365,7 +2815,8 @@ function openHelp(){
   '<p>There is no sync. Two phones means two separate closets. Move a closet across by backing up on one and restoring on the other, and remember the restore replaces whatever was on the second phone.</p>'+
 
   '<h4>About this app</h4>'+
-  '<p>This app is independent and is not affiliated with, endorsed by or connected to any wig shop or brand. Shop and product names appear only as suggestions to save you typing, and anything you type yourself is added to your own list.</p>';
+  '<p>The Style box knows the names of a few hundred wigs from one shop. Type or pick a style, then the colorway, and a pink box appears offering to fill in the length, density, parting, fiber, combs and retail price for you. It only fills boxes you have left empty, so nothing you typed gets overwritten, and you can change any of it afterwards. Plenty of wigs get customized after they are bought, so treat it as a starting point rather than gospel.</p>'+
+  '<p>This app is independent and is not affiliated with, endorsed by or connected to any wig shop or brand. Those names are here as plain facts to save you typing twenty boxes, nothing more, and anything you type yourself goes into your own list and comes first from then on.</p>';
   openPanel('panel-help');
 }
 
