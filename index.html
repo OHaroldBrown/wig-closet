@@ -325,7 +325,7 @@ footer .priv{font-weight:600;margin-top:6px}
 </button>
 
 <footer>
-  <div class="stamp" id="buildStamp">BUILD 0809261944 &middot; CORE 1.0.0</div>
+  <div class="stamp" id="buildStamp">BUILD 0809262004 &middot; CORE 1.0.0</div>
   <div>Designed by Harold Brown</div>
   <div class="priv">Your closet is stored only on this device. Nobody else can see it and it is not backed up anywhere until you back it up yourself.</div>
   <button class="footshare" id="footShare">
@@ -420,7 +420,7 @@ footer .priv{font-weight:600;margin-top:6px}
    Single file app. No server, no account, no sync.
    ===================================================================== */
 
-var BUILD = '0809261944';
+var BUILD = '0809262004';
 var CORE  = '1.0.0';
 
 /* =====================================================================
@@ -752,10 +752,15 @@ var stack=[], afterClose={}, suppressPop=false;
    nothing because history.back() failed would leave someone stuck looking at a
    wig with no way out. So the panel is shown and hidden directly, and history is
    kept in step separately and allowed to fail. */
+/* Panels all share a z-index in the stylesheet, so without this the one that opens
+   second can be painted underneath the one already showing, purely because of where
+   it sits in the HTML. It looks exactly like a dead button. Depth decides what is on
+   top, not document order. */
 function openPanel(id){
   var p=$(id); if(!p) return;
   p.classList.add('open');
   stack.push(id);
+  p.style.zIndex = String(60 + stack.length);
   p.scrollTop=0;
   document.body.style.overflow='hidden';
   try{ history.pushState({panel:id, depth:stack.length}, ''); }catch(e){}
@@ -763,7 +768,7 @@ function openPanel(id){
 function popPanel(){
   if(!stack.length) return null;
   var id=stack.pop();
-  var p=$(id); if(p) p.classList.remove('open');
+  var p=$(id); if(p){ p.classList.remove('open'); p.style.zIndex=''; }
   if(!stack.length) document.body.style.overflow='';
   if(typeof afterClose[id]==='function'){ var fn=afterClose[id]; afterClose[id]=null; setTimeout(fn, 0); }
   return id;
@@ -1120,6 +1125,7 @@ function showLock(mode){
   if(mode==='set'){ $('lockTitle').textContent='Choose a PIN'; $('lockSub').textContent='Pick four digits you will remember.'; }
   if(mode==='off'){ $('lockTitle').textContent='Turn the PIN off'; $('lockSub').textContent='Enter your current PIN.'; }
   document.body.classList.add('locked');
+  $('panel-lock').style.zIndex='200';
   $('panel-lock').classList.add('open');
   document.body.style.overflow='hidden';
 }
@@ -2079,7 +2085,7 @@ function openMenu(){
   var l1=el('div','menulist');
   menuItem(l1,'Send a backup to Drive','Opens your share sheet. Save it to Drive, email it to yourself, whatever you will find again. Currently '+prettyBytes(backupBytes())+'.', shareBackup);
   menuItem(l1,'Save a backup on this phone','Downloads the same file straight to this device.', saveBackupLocal);
-  menuItem(l1,'Restore from a backup','Replaces everything in this closet with a backup file.', function(){ $('filePick').click(); });
+  menuItem(l1,'Restore from Drive or this phone','Opens your file picker, where you can reach Google Drive as well as your downloads. Whichever backup you pick replaces everything in this closet.', function(){ restoreHint(); $('filePick').click(); });
   b.appendChild(l1);
 
   b.appendChild(el('h3','grouptitle','Undo'));
@@ -2338,7 +2344,8 @@ function openHelp(){
   '<p>The line under the totals says exactly how many units each number covers. A unit with no price is left out rather than counted as zero, because counting it as zero would quietly drag your average down. If the spread compared a different set of units than the totals, it would be a meaningless number, so the app tells you which set it used.</p>'+
 
   '<h4>Backing up</h4>'+
-  '<p>Menu, then Send a backup to Drive. Your phone opens its usual share sheet and you pick where it goes. The file is a plain text file, because Chrome on Android refuses to share the more obvious file type. Do not rename it. To bring it back, use Restore from a backup on any phone, and the whole closet comes back including photos.</p>'+
+  '<p>Menu, then Send a backup to Drive. Your phone opens its usual share sheet and you pick where it goes. The file is a plain text file, because Chrome on Android refuses to share the more obvious file type. Do not rename it.</p>'+
+  '<p>To bring it back, use Restore from Drive or this phone. There is only one restore button because the picker your phone opens can reach both places. On Android it usually opens on Recent or Downloads, so if your backup is sitting in Drive, tap the three line menu in the corner of the picker and choose Drive. Whichever file you pick replaces everything in this closet, photos included.</p>'+
 
   '<h4>Keeping your backups in one folder</h4>'+
   '<p>This app cannot make folders in your Drive. No website can, unless you hand it your Google sign in, and this one deliberately never asks you for that. So the folder is a one time job you do yourself, and it takes about twenty seconds.</p>'+
@@ -2397,6 +2404,7 @@ function openWelcome(){
 
   /* deliberately not on the history stack: it is the first screen, so the back
      button here should leave the site rather than strand someone on a blank grid */
+  $('panel-welcome').style.zIndex='150';
   $('panel-welcome').classList.add('open');
   document.body.style.overflow='hidden';
 }
@@ -2452,6 +2460,14 @@ $('arrangeBtn').onclick=function(){
   if(arranging) toast('Drag tiles to reorder. Tap Done when you are finished.');
 };
 $('search').oninput=function(){ search=this.value.trim(); renderGrid(); };
+/* On Android the picker opens on Recent or Downloads and Drive is hidden behind the
+   three line menu, which is where people get stuck looking for a backup they know
+   they saved. */
+function restoreHint(){
+  toast(/android/i.test(navigator.userAgent)
+    ? 'If your backup is in Drive, tap the three line menu in the picker and choose Drive.'
+    : 'Pick your backup file. It can come from Drive or from this device.');
+}
 $('filePick').onchange=function(){
   var f=this.files && this.files[0]; if(!f) return;
   var fr=new FileReader();
